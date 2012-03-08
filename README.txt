@@ -1,7 +1,7 @@
 
 INSTALL:
 ----------------------------------------------------------------------------------------------------------
-Simple Module to render tree menu. Go to your module Install page and click "Check for new modules".
+Go to your module Install page and click "Check for new modules".
 It will appear under the section Markup. Click "install" button. Done.
 
 
