@@ -8,7 +8,12 @@ It will appear under the section Markup. Click "install" button. Done.
 BASIC USAGE:
 ----------------------------------------------------------------------------------------------------------
 
-Once installed a new template variable is available called "$treeMenu" to render the menu.
+Once installed a new template variable is available called "$treeMenu" to render the menu. The arguments are optional.
+
+$treeMenu->render($options, $page, $rootPage)
+$options, is an array of options
+$page, is a page object for the current page
+$rootPage, is a page object for the root of the menu
 
 Simplest is to call with no options. It will render a ul markup tree on all levels expanded from the
 root page "/". Containing "parent" and "current" class attributes on anchors by default.
@@ -30,7 +35,6 @@ $options = array(
 echo $treeMenu->render($options);
 
 
-
 OVERWRITE CURRENT PAGE AND ROOTPAGE:
 ----------------------------------------------------------------------------------------------------------
 
@@ -44,8 +48,6 @@ Or to even overwrite the current active page
 $currentPage = $pages->get(1242); // or any other page object 
 $rootPage = $pages->get("/en/"); // or any other page that has subpages
 echo $treeMenu->render(null, $currentPage, $rootPage); // null at first is to not have to specify options, just use default
-
-
 
 
 OUTPUT EXAMPLE:
@@ -82,7 +84,6 @@ OUTPUT EXAMPLE:
 </ul>
 
 
-
 JS MENUS, CSS, MARKUP TEMPLATES
 ----------------------------------------------------------------------------------------------------------
 
@@ -92,5 +93,4 @@ Using this output together with the right css or js plugin, you can quickly prod
 multilevel navigation. This is up to you. There's also currently no way to define your own markup.
 Although you could do a str_replace to change simple things, since it returns a string this is possible.
 Or use js to modify, add prefixes or wrap elements.
-
 
