@@ -25,6 +25,7 @@ ADVANCED CALL WITH ALL OPTIONS AVAILABLE:
 ----------------------------------------------------------------------------------------------------------
 
 $options = array(
+	'show_root' => false, // bool: set this to true if you want to rootPage to get prepended to the menu
 	'collapsed' => false, // bool: if you want to auto-collapse the tree (in markup) you set this to true
 	'css_current' => 'on', // string: overwrite current class
 	'css_parent' => 'is_parent', // string: overwrite class name for parent levels

@@ -27,6 +27,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
         'css_current' => 'current',
         'css_levels_on' => false,
         'collapsed' => false,
+        'show_root' => false,
         'ul_id' => '',
         'ul_class' => ''
     );
@@ -88,7 +89,14 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
         $parents = $page->parents;
 
-        foreach($rootPage->children as $child) {
+        if($options['show_root'] && $this->level == 1) {
+            $childs = $rootPage->children;
+            $childs->prepend( $rootPage );
+        } else {
+            $childs = $rootPage->children;
+        }
+
+        foreach($childs as $child) {
 
                 $s = '';
                 
@@ -103,7 +111,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
                     else if($child === $page){
                         $class .= " " . $options['css_current'];
                     }
-                    if($child->numChildren){
+                    if($child->numChildren && $child !== $rootPage){
                         $s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child));
                     }
                 } 
@@ -111,11 +119,11 @@ class MarkupSimpleNavigation extends WireData implements Module {
                 {
                     if($child->numChildren && $parents->has($child)) {
                         $class .= " " . $options['css_parent'];
-                        $s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child));
+                        $s = $child !== $rootPage ? str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child)) : '';
 
                     } else if($child === $page) {
                         $class .= " " . $options['css_current'];
-                        if($page->numChildren) $s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child));
+                        if($page->numChildren && $child !== $rootPage) $s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child));
                     }
                 }
                 
