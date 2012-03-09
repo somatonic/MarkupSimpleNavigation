@@ -11,7 +11,7 @@ Processwire unless you load it in one of your php templates.
 BASIC USAGE:
 ----------------------------------------------------------------------------------------------------------
 
-Once installed you can load it on demand in your templates by using $modules->get("SimpleMarkupNavigation") method.
+Once installed you can load it on demand in your templates by using $modules->get("MarkupSimpleNavigation") method.
 
 Arguments:
 render($options, $page, $rootPage)
@@ -22,7 +22,7 @@ $rootPage, is a page object for the root of the menu
 Simplest is to call with no options. It will render an nested UL markup tree on all levels expanded from the
 root page "/". Containing "parent" and "current" class attributes on anchors by default.
 
-$treeMenu = $modules->get("SimpleMarkupNavigation"); // load the module
+$treeMenu = $modules->get("MarkupSimpleNavigation"); // load the module
 echo $treeMenu->render(); // render default menu
 
 
