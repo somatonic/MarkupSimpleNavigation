@@ -47,7 +47,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 	
 	public function init() {
 		//$this->fuel->set('treeMenu', $this );
-		$this->set('level',0);
+		$this->set('iteration',0);
 	}
 
 
