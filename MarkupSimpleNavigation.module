@@ -39,13 +39,13 @@ class MarkupSimpleNavigation extends WireData implements Module {
             'summary' => 'Module to render simple nested ul tree of the site structure. Simple use: $page->treeMenu(), or specify own current $page and custom $rootPage: $page->treeMenu($page, $rootPage)',
             'version' => 100,
             'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
-            'autoload' => true,
+            'autoload' => false,
             'singular' => true
         );
     }
     
     public function init() {
-        $this->fuel->set('treeMenu', $this );
+        //$this->fuel->set('treeMenu', $this );
         $this->set('level',0);
     }
 

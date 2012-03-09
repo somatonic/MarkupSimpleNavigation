@@ -8,7 +8,7 @@ It will appear under the section Markup. Click "install" button. Done.
 BASIC USAGE:
 ----------------------------------------------------------------------------------------------------------
 
-Once installed a new template variable is available called "$treeMenu" to render the menu. The arguments are optional.
+Once installed you can load it on demand in your templates by using $modules->get("SimpleMarkupNavigation") method.
 
 $treeMenu->render($options, $page, $rootPage)
 $options, is an array of options
@@ -18,7 +18,8 @@ $rootPage, is a page object for the root of the menu
 Simplest is to call with no options. It will render a ul markup tree on all levels expanded from the
 root page "/". Containing "parent" and "current" class attributes on anchors by default.
 
-echo $treeMenu->render();
+$treeMenu = $modules->get("SimpleMarkupNavigation"); // load the module
+echo $treeMenu->render(); // render default menu
 
 
 ADVANCED CALL WITH ALL OPTIONS AVAILABLE:
