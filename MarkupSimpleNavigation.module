@@ -21,122 +21,135 @@
 
 
 class MarkupSimpleNavigation extends WireData implements Module {
-    
-    public static $defaultOptions = array(
-        'css_parent' => 'parent',
-        'css_current' => 'current',
-        'css_levels_on' => false,
-        'collapsed' => false,
-        'show_root' => false,
-        'ul_id' => '',
-        'ul_class' => ''
-    );
+	
+	public static $defaultOptions = array(
+		'css_parent' => 'parent',
+		'css_current' => 'current',
+		'css_levels_on' => false,
+		'collapsed' => false,
+		'show_root' => false,
+		'ul_id' => '',
+		'ul_class' => '',
+		'max_levels' => null
+	);
 
 
-    public static function getModuleInfo() {
-        return array(
-            'title' => "Markup for simple nested navigation",
-            'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-            'version' => 100,
-            'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
-            'autoload' => false,
-            'singular' => true
-        );
-    }
-    
-    public function init() {
-        //$this->fuel->set('treeMenu', $this );
-        $this->set('level',0);
-    }
+	public static function getModuleInfo() {
+		return array(
+			'title' => "Markup for simple nested navigation",
+			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
+			'version' => 100,
+			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
+			'autoload' => false,
+			'singular' => true
+		);
+	}
+	
+	public function init() {
+		//$this->fuel->set('treeMenu', $this );
+		$this->set('level',0);
+	}
 
 
-    /**
-    * 
-    *   Main method called ony pages by echo $treeMenu->render(); to render
-    *   init tree rendering, merge options with defaults
-    *
-    */ 
-    public function render( Array $options = null, Page $page = null, Page $rootPage = null ) {
+	/**
+	* 
+	*   Main method called ony pages by echo $treeMenu->render(); to render
+	*   init tree rendering, merge options with defaults
+	*
+	*/ 
+	public function render( Array $options = null, Page $page = null, Page $rootPage = null ) {
 
-        if($options != null && is_array($options)){
-            $options = array_merge(self::$defaultOptions, $options);
-        } else {
-            $options = self::$defaultOptions;
-        }
-        return $this->_renderTree( $options, $page, $rootPage );
-    }
+		if($options != null && is_array($options)){
+			$options = array_merge(self::$defaultOptions, $options);
+		} else {
+			$options = self::$defaultOptions;
+		}
+		return $this->_renderTree( $options, $page, $rootPage );
+	}
 
 
-    /**
-    *
-    *   Render the tree method
-    *
-    */
-    private function _renderTree( $options, $page, $rootPage ){
+	/**
+	*
+	*   Render the tree method
+	*
+	*/
+	private function _renderTree( $options, $page, $rootPage ){
 
-        $this->level++;
+		$this->iteration++;
 
-        if(is_null($page)) $page = wire('page');
-        if(is_null($rootPage)) $rootPage = wire('pages')->get('/');
+		if(is_null($page)) $page = wire('page');
+		if(is_null($rootPage)) $rootPage = wire('pages')->get('/');
 
-        $ul_class = '';
-        $ul_id = '';
-        if($options['ul_class'] != '') $ul_class = " class='".$options['ul_class']."'";
-        if($options['ul_id'] != '') $ul_id = " id='".$options['ul_id']."'";
+		$ul_class = '';
+		$ul_id = '';
+		if($options['ul_class'] != '') $ul_class = " class='".$options['ul_class']."'";
+		if($options['ul_id'] != '') $ul_id = " id='".$options['ul_id']."'";
 
-        if($this->level == 1) $out = "\n<ul$ul_class$ul_id>";
-            else  $out = "\n<ul>";
+		if($this->iteration == 1) $out = "\n<ul$ul_class$ul_id>";
+			else  $out = "\n<ul>";
 
-        $parents = $page->parents;
+		$parents = $page->parents;
 
-        if($options['show_root'] && $this->level == 1) {
-            $childs = $rootPage->children;
-            $childs->prepend( $rootPage );
-        } else {
-            $childs = $rootPage->children;
-        }
+		if($options['show_root'] && $this->iteration == 1) {
+			$childs = $rootPage->children;
+			$childs->prepend( $rootPage );
+		} else {
+			$childs = $rootPage->children;
+		}
 
-        foreach($childs as $child) {
+		foreach($childs as $child) {
 
-                $s = '';
-                
-                if($options['css_levels_on']) $class = " level-" . count($child->parents);
-                    else $class = '';
-                
-                if(!$options['collapsed']){
-                    
-                    if($parents->has($child)) {
-                        $class .= " " . $options['css_parent'];
-                    }
-                    else if($child === $page){
-                        $class .= " " . $options['css_current'];
-                    }
-                    if($child->numChildren && $child !== $rootPage){
-                        $s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child));
-                    }
-                } 
-                else
-                {
-                    if($child->numChildren && $parents->has($child)) {
-                        $class .= " " . $options['css_parent'];
-                        $s = $child !== $rootPage ? str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child)) : '';
+				$s = '';
+				$level = ($child === $rootPage) ? 1 : count($child->parents);
 
-                    } else if($child === $page) {
-                        $class .= " " . $options['css_current'];
-                        if($page->numChildren && $child !== $rootPage) $s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child));
-                    }
-                }
-                
-                $class = substr($class,1);
+				if($options['css_levels_on']) $class = " level-" . $level;
+					else $class = '';
+				
+				if($options['max_levels'] != null && $level >= $options['max_levels']) $stopit = true;
+					else $stopit = false;
 
-                if(strlen($class) > 0) {
-                    $class = " class='$class'";
-                }
-                
-                $out .= "\n\t<li>\n\t\t<a$class href='{$child->url}'>{$child->title}</a>$s\n\t</li>";
-        }
 
-        $out .= "\n</ul>\n";
-        return $out;
-    }
+				if(!$options['collapsed']){
+					
+					if($parents->has($child)) {
+						$class .= ($child !== $rootPage) ? " " . $options['css_parent'] : '' ;
+					}
+					else if($child === $page){
+						$class .= " " . $options['css_current'];
+					}
+					if($child->numChildren && $child !== $rootPage){
+						if(!$stopit) {
+							$s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child));
+						}
+					}
+				} 
+				else
+				{
+					if($child->numChildren && $parents->has($child)) {
+						$class .= ($child !== $rootPage) ? " " . $options['css_parent'] : '' ;
+						if(!$stopit) {
+							$s = ($child !== $rootPage) ? str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child)) : '';
+						}
+					} else if($child === $page) {
+						$class .= " " . $options['css_current'];
+						if($page->numChildren && $child !== $rootPage) {
+							if(!$stopit) {
+								$s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child));
+							}
+						}
+					}
+				}
+				
+				$class = substr($class,1);
+
+				if(strlen($class) > 0) {
+					$class = " class='$class'";
+				}
+				
+				$out .= "\n\t<li>\n\t\t<a$class href='{$child->url}'>{$child->title}</a>$s\n\t</li>";
+		}
+
+		$out .= "\n</ul>\n";
+		return $out;
+	}
 }
