@@ -1,8 +1,11 @@
 
 INSTALL:
 ----------------------------------------------------------------------------------------------------------
-Go to your module Install page and click "Check for new modules".
-It will appear under the section Markup. Click "install" button. Done.
+
+Go to your module Install page and click "Check for new modules". It will appear under the section Markup. 
+Click "install" button. Done. (Techically you don't even need to install it, after the load call it will 
+be installed automaticly on first request. But it feels better). However it will not be "autoloaded" by 
+Processwire unless you load it in one of your php templates.
 
 
 BASIC USAGE:
@@ -10,12 +13,13 @@ BASIC USAGE:
 
 Once installed you can load it on demand in your templates by using $modules->get("SimpleMarkupNavigation") method.
 
-$treeMenu->render($options, $page, $rootPage)
+Arguments:
+render($options, $page, $rootPage)
 $options, is an array of options
 $page, is a page object for the current page
 $rootPage, is a page object for the root of the menu
 
-Simplest is to call with no options. It will render a ul markup tree on all levels expanded from the
+Simplest is to call with no options. It will render an nested UL markup tree on all levels expanded from the
 root page "/". Containing "parent" and "current" class attributes on anchors by default.
 
 $treeMenu = $modules->get("SimpleMarkupNavigation"); // load the module
