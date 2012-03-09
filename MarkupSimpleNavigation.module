@@ -36,7 +36,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
     public static function getModuleInfo() {
         return array(
             'title' => "Markup for simple nested navigation",
-            'summary' => 'Module to render simple nested ul tree of the site structure. Simple use: $page->treeMenu(), or specify own current $page and custom $rootPage: $page->treeMenu($page, $rootPage)',
+            'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
             'version' => 100,
             'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
             'autoload' => false,
