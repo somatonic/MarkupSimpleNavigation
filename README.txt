@@ -35,9 +35,11 @@ $options = array(
 	'collapsed' => true, // bool (default false) if you want to auto-collapse the tree (in markup) you set this to true
 	'css_current' => 'on', // string (default 'current') overwrite current class
 	'css_parent' => 'is_parent', // string (default 'parent') overwrite class name for parent levels
-	'css_levels_on' => true, // bool(default false) wether to output "level-1, level-2, ..." as css class in links
+	'css_levels_on' => true, // bool (default false) wether to output "level-1, level-2, ..." as css class in links
+	'css_firstlast_on' => true // bool (default false) puts last,first class to link items
 	'ul_id' => 'mainnav', // string (default '') set a id name for the topmost ul element
 	'ul_class' => 'mainnav' // string (default '') set a class name for the topmost ul element
+	'selector' => 'parent!=1008' // string (default '') define custom PW selector, you may sanitize values from user input
 )
 echo $treeMenu->render($options);
 
