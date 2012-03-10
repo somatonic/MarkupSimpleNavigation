@@ -97,7 +97,6 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		if($options['ul_id'] != '') $ul_id = " id='".$options['ul_id']."'";
 
 		$out = '';
-		$list_tag = $options['list_tag'];
 		if($this->iteration == 1) $out .= "\n<ul$ul_class$ul_id>";
 			else if( count($children) ) $out .= "\n<ul>";
 
