@@ -62,34 +62,25 @@ echo $treeMenu->render(null, $currentPage, $rootPage); // null at first is to no
 OUTPUT EXAMPLE:
 ----------------------------------------------------------------------------------------------------------
 
-<ul class='mainnav' id='mainnav'>
-	<li>
-		<a class='level-1 is_parent' href='/about/'>About22</a>
+<ul>
+	<li><a class='level-1 first' href='/'>Home</a></li>
+	<li><a class='level-1 parent' href='/about/'>About22</a>
 		<ul>
-			<li>
-				<a class='level-2' href='/about/what/'>Child page example 1</a>
-			</li>
-			<li>
-				<a class='level-2 on' href='/about/background/'>Child page example 2</a>
-			</li>
-			<li>
-				<a class='level-2' href='/about/test/'>test</a>
+			<li><a class='level-2 first' href='/about/what/'>Child page example 1</a></li>
+			<li><a class='level-2' href='/about/background/'>Child page example 2</a></li>
+			<li><a class='level-2 last on' href='/about/test/'>test</a>
 				<ul>
-					<li>
-						<a class='level-3' href='/about/test/test2/'>test2</a>
-					</li>
+					<li><a class='level-3 first last' href='/about/test/test2/'>test2</a></li>
 				</ul>
-				
-			</li>
+				</li>
 		</ul>
-		
-	</li>
-	<li>
-		<a class='level-1' href='/templates/'>Templates</a>
-	</li>
-	<li>
-		<a class='level-1' href='/site-map/'>Site Map</a>
-	</li>
+		</li>
+	<li><a class='level-1' href='/templates/'>Templates</a>
+		<ul>
+			<li><a class='level-2 first last' href='/templates/template2/'>template2</a></li>
+		</ul>
+		</li>
+	<li><a class='level-1 last' href='/site-map/'>Site Map</a></li>
 </ul>
 
 
