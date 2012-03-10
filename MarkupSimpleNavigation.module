@@ -103,61 +103,61 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 		foreach($children as $key => $child) {
 
-				$s = '';
-				$level = ($child === $rootPage) ? 1 : count($child->parents);
+			$s = '';
+			$level = ($child === $rootPage) ? 1 : count($child->parents);
 
-				$class = '';
+			$class = '';
 
-				if($options['css_levels_on']) $class = " level-" . $level;
-					else $class = '';
+			if($options['css_levels_on']) $class = " level-" . $level;
+				else $class = '';
+			
+			if($options['max_levels'] != null && $level >= $options['max_levels']) $stopit = true;
+				else $stopit = false;
+
+			if($options['css_firstlast_on']) {
+				if($key == 0) $class .= " first";
+				if($key == (count($children) - 1 ) ) $class .= " last";
+			}
+
+			if(!$options['collapsed']){
 				
-				if($options['max_levels'] != null && $level >= $options['max_levels']) $stopit = true;
-					else $stopit = false;
-
-				if($options['css_firstlast_on']) {
-					if($key == 0) $class .= " first";
-                    if($key == (count($children) - 1 ) ) $class .= " last";
+				if($parents->has($child)) {
+					$class .= ($child !== $rootPage) ? " " . $options['css_parent'] : '' ;
+				} 
+				else if($child === $page){
+					$class .= " " . $options['css_current'];
 				}
-
-				if(!$options['collapsed']){
-					
-					if($parents->has($child)) {
-						$class .= ($child !== $rootPage) ? " " . $options['css_parent'] : '' ;
-					} 
-					else if($child === $page){
-						$class .= " " . $options['css_current'];
+				if($child->numChildren && $child !== $rootPage){
+					if(!$stopit) {
+						$s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child));
 					}
-					if($child->numChildren && $child !== $rootPage){
+				}
+			} 
+			else
+			{
+				if($child->numChildren && $parents->has($child)) {
+					$class .= ($child !== $rootPage) ? " " . $options['css_parent'] : '' ;
+					if(!$stopit) {
+						$s = ($child !== $rootPage) ? str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child)) : '';
+					}
+				}
+				else if($child === $page) {
+					$class .= " " . $options['css_current'];
+					if($page->numChildren && $child !== $rootPage) {
 						if(!$stopit) {
 							$s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child));
 						}
 					}
-				} 
-				else
-				{
-					if($child->numChildren && $parents->has($child)) {
-						$class .= ($child !== $rootPage) ? " " . $options['css_parent'] : '' ;
-						if(!$stopit) {
-							$s = ($child !== $rootPage) ? str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child)) : '';
-						}
-					}
-					else if($child === $page) {
-						$class .= " " . $options['css_current'];
-						if($page->numChildren && $child !== $rootPage) {
-							if(!$stopit) {
-								$s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child));
-							}
-						}
-					}
 				}
-				
-				$class = substr($class,1);
+			}
+			
+			$class = substr($class,1);
 
-				if(strlen($class) > 0) {
-					$class = " class='$class'";
-				}
-				
-				$out .= "\n\t<li><a$class href='{$child->url}'>{$child->title}</a>$s</li>";
+			if(strlen($class) > 0) {
+				$class = " class='$class'";
+			}
+			
+			$out .= "\n\t<li><a$class href='{$child->url}'>{$child->title}</a>$s</li>";
 		}
 
 		if( count($children) ) $out .= "\n</ul>\n";
