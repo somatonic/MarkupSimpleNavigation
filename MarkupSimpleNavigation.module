@@ -167,7 +167,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 				$class = " class='$class'";
 			}
 			
-			if($child === $page) $link_tpl = $options['item_active_tpl'];
+			if($child === $page) $link_tpl = $options['item_current_tpl'];
 				else $link_tpl = $options['item_tpl'];
 
 			// template tags matching
