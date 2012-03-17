@@ -2,12 +2,12 @@
 
 /**
  *
- * Simple Tree Menu Module 1.0.0
+ * Simple Tree Menu Module 1.1.0
  *
  * @author Soma, with code based by Apeisa, Ryan.
  *
  * @date_created 08/03/2012
- * @last_modified 10/03/2012
+ * @last_modified 17/03/2012
  *
  * ProcessWire 2.x 
  * Copyright (C) 2011 by Ryan Cramer 
@@ -23,16 +23,21 @@
 class MarkupSimpleNavigation extends WireData implements Module {
 	
 	public static $defaultOptions = array(
-		'css_parent' => 'parent',
-		'css_current' => 'current',
-		'css_levels_on' => false,
-		'css_firstlast_on' => false,
-		'collapsed' => false,
-		'show_root' => false,
-		'ul_id' => '',
-		'ul_class' => '',
-		'max_levels' => null,
-		'selector' => ''
+		'parent_class' => 'parent', // string (default 'parent') overwrite class name for current parent levels
+		'current_class' => 'current', // string (default 'current') overwrite current class
+		'has_children_class' => 'has_children', // string (default 'has_children') overwrite class name for entries with children
+		'levels' => false, // bool (default false) wether to output "level-1, level-2, ..." as css class in links
+		'levels_prefix' => 'level-', // bool (default 'level-') prefix string that will be used for level class
+		'max_levels' => null, // int (default null) set the max level rendered
+		'firstlast' => false, // bool (default false) puts last,first class to link items
+		'collapsed' => false, // bool (default false) if you want to auto-collapse the tree you set this to true
+		'show_root' => false, // bool (default false) set this to true if you want to rootPage to get prepended to the menu
+		'selector' => '', // string (default '') define custom PW selector, you may sanitize values from user input
+		'outer_tpl' => '<ul>||</ul>', // template string for the outer most wrapper. || will contain entries
+		'inner_tpl' => '<ul>||</ul>', // template string for inner wrappers. || will contain entries
+		'list_tpl' => '<li%s>||</li>', // template string for the items. || will contain entries, %s will replaced with class="..." string
+		'item_tpl' => '<a href="{url}">{title}</a>', // template string for the inner items. Use {anyfield} and {url}, i.e. {headline|title}, if field is of type image it will return url to image (first image if multiple)
+		'item_current_tpl' => '<a href="{url}">{title}</a>' // template string for the current active inner items. 
 	);
 
 
@@ -40,7 +45,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		return array(
 			'title' => "Markup for simple nested navigation",
 			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-			'version' => 100,
+			'version' => 110,
 			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
 			'autoload' => false,
 			'singular' => true
@@ -55,7 +60,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 	/**
 	* 
-	*   Main method called ony pages by echo $treeMenu->render(); to render
+	*   Init method to render nested menu tree
 	*   init tree rendering, merge options with defaults
 	*
 	*/ 
@@ -66,7 +71,9 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		} else {
 			$options = self::$defaultOptions;
 		}
-		return $this->_renderTree( $options, $page, $rootPage );
+		// level offset of root page
+		$offset = count($rootPage->parents);
+		return $this->_renderTree( $options, $page, $rootPage, $offset);
 	}
 
 
@@ -75,7 +82,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 	*   Render the tree method
 	*
 	*/
-	private function _renderTree( $options, $page, $rootPage ){
+	private function _renderTree( $options, $page, $rootPage, $offset ){
 
 		$this->iteration++;
 
@@ -83,6 +90,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		if(is_null($rootPage)) $rootPage = wire('pages')->get('/');
 
 		$parents = $page->parents;
+		$offset_root = count($rootPage->parents);
 
 		if($options['show_root'] && $this->iteration == 1) {
 			$children = $rootPage->children( $options['selector'] );
@@ -91,29 +99,29 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			$children = $rootPage->children( $options['selector'] );
 		}
 
-		$ul_class = '';
-		$ul_id = '';
-		if($options['ul_class'] != '') $ul_class = " class='".$options['ul_class']."'";
-		if($options['ul_id'] != '') $ul_id = " id='".$options['ul_id']."'";
+		$outer_tpl = explode('||',$options['outer_tpl']);
+		$inner_tpl = explode('||',$options['inner_tpl']);
+		$list_tpl = explode('||',$options['list_tpl']);
 
 		$out = '';
-		if($this->iteration == 1) $out .= "\n<ul$ul_class$ul_id>";
-			else if( count($children) ) $out .= "\n<ul>";
+		
+		if($this->iteration == 1) $out .= "\n{$outer_tpl[0]}";
+			else if( count($children) ) $out .= "\n$inner_tpl[0]";
 
 		foreach($children as $key => $child) {
 
 			$s = '';
-			$level = ($child === $rootPage) ? 1 : count($child->parents);
-
-			$class = '';
-
-			if($options['css_levels_on']) $class = " level-" . $level;
-				else $class = '';
+			$level = ($child === $rootPage) ? 1 : count($child->parents) - $offset;
 			
 			if($options['max_levels'] != null && $level >= $options['max_levels']) $stopit = true;
 				else $stopit = false;
 
-			if($options['css_firstlast_on']) {
+			$class = '';
+
+			if($options['levels']) $class = " " . $options['levels_prefix'] . $level;
+				else $class = '';
+
+			if($options['firstlast']) {
 				if($key == 0) $class .= " first";
 				if($key == (count($children) - 1 ) ) $class .= " last";
 			}
@@ -121,30 +129,33 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			if(!$options['collapsed']){
 				
 				if($parents->has($child)) {
-					$class .= ($child !== $rootPage) ? " " . $options['css_parent'] : '' ;
+					$class .= ($child !== $rootPage) ? " " . $options['parent_class'] : '' ;
 				} 
 				else if($child === $page){
-					$class .= " " . $options['css_current'];
+					$class .= " " . $options['current_class'];
 				}
 				if($child->numChildren && $child !== $rootPage){
+					$class .= " " . $options['has_children_class'];
 					if(!$stopit) {
-						$s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child));
+						$s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child, $offset));
 					}
 				}
-			} 
+			}
 			else
 			{
 				if($child->numChildren && $parents->has($child)) {
-					$class .= ($child !== $rootPage) ? " " . $options['css_parent'] : '' ;
+					$class .= ($child !== $rootPage) ? " " . $options['parent_class'] : '' ;
+					$class .= ($child !== $rootPage) ? " " . $options['has_children_class'] : '' ;
 					if(!$stopit) {
-						$s = ($child !== $rootPage) ? str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child)) : '';
+						$s = ($child !== $rootPage) ? str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child, $offset)) : '';
 					}
 				}
 				else if($child === $page) {
-					$class .= " " . $options['css_current'];
+					$class .= " " . $options['current_class'];
 					if($page->numChildren && $child !== $rootPage) {
+						$class .= " " . $options['has_children_class'];
 						if(!$stopit) {
-							$s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child));
+							$s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child, $offset));
 						}
 					}
 				}
@@ -156,10 +167,38 @@ class MarkupSimpleNavigation extends WireData implements Module {
 				$class = " class='$class'";
 			}
 			
-			$out .= "\n\t<li><a$class href='{$child->url}'>{$child->title}</a>$s</li>";
+			if($child === $page) $link_tpl = $options['item_active_tpl'];
+				else $link_tpl = $options['item_tpl'];
+
+			// template tags matching
+			preg_match_all('#\{(.+?)\}#i', $link_tpl, $matches, PREG_SET_ORDER);
+
+			if(count($matches)){
+				foreach($matches as $match){
+					// check if it's an image file field and ouput url
+					if($this->fields->get($match[1])->type == "FieldtypeImage") {
+						if(count($child->get($match[1]))>1) {
+							$field_value = $child->get($match[1])->first()->url;
+						} else{
+							$field_value = $child->get($match[1])->url;
+						}
+					} else {
+						$field_value = $child->get($match[1]);
+					}
+					$link_tpl = str_replace($match[0], $field_value, $link_tpl);
+					$link_tpl = str_replace("%s", $class, $link_tpl);
+				}
+			}
+
+			$list_tpl_open = str_replace("%s", $class, $list_tpl[0]);
+			$out .= "\n\t{$list_tpl_open}{$link_tpl}{$s}{$list_tpl[1]}";
 		}
 
-		if( count($children) ) $out .= "\n</ul>\n";
+		
+		if($this->iteration == 1) $out .= "\n{$outer_tpl[0]}";
+			else if( count($children) ) $out .= "\n$inner_tpl[1]\n";
+	
 		return $out;
 	}
+
 }
