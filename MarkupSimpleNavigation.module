@@ -74,7 +74,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		// level offset of root page
 		$offset = count($rootPage->parents);
 		return $this->_renderTree( $options, $page, $rootPage, $offset);
-		
+
 	}
 
 
@@ -196,7 +196,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		}
 
 		
-		if($this->iteration == 1) $out .= "\n{$outer_tpl[0]}";
+		if($this->iteration == 1) $out .= "\n{$outer_tpl[1]}";
 			else if( count($children) ) $out .= "\n$inner_tpl[1]\n";
 	
 		return $out;
