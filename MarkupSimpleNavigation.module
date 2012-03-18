@@ -181,7 +181,8 @@ class MarkupSimpleNavigation extends WireData implements Module {
 					if($f instanceof Pageimage) {
 						$field_value = $f->url;
 					} else if($f instanceof Pageimages) {
-						$field_value = $f->first()->url;
+						if(count($f)) $field_value = $f->first()->url;
+							else $field_value = '';
 					} else {
 						$field_value = $f;
 					}
