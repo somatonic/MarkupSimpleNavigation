@@ -114,11 +114,13 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 			$s = '';
 			$class = '';
-			$level = ($child === $rootPage) ? 1 : count($child->parents) - $offset;
 			$is_root = ($child === $rootPage) ? true : false;
+			$level = $is_root ? 1 : count($child->parents) - $offset;
 			$stopit = ($options['max_levels'] != null && $level >= $options['max_levels']) ? true : false;
 			$has_valid_children = (count($child->children($options['selector'])) && !$stopit) ? true : false;
-
+			$is_parent = $parents->has($child);
+			$is_current = $child === $page;
+			
 			if($options['levels']) $class = " " . $options['levels_prefix'] . $level;
 				else $class = '';
 
@@ -129,10 +131,10 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			
 			// generate an "all open" tree structure
 			if(!$options['collapsed']) {
-				if($parents->has($child)) {
-					$class .= !$is_root ? " " . $options['parent_class'] : '' ;
+				if($is_parent && !$is_root) {
+					$class .= " " . $options['parent_class'];
 				} 
-				else if($child === $page){
+				else if($is_current){
 					$class .= " " . $options['current_class'];
 				}
 				if($has_valid_children && !$is_root && !$stopit){
@@ -142,13 +144,13 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			// if auto collapse enabled only open current branch
 			else
 			{
-				if($has_valid_children && $parents->has($child)) {
-					$class .= !$is_root ? " " . $options['parent_class'] : '' ;
+				if($has_valid_children && $is_parent && !$is_root) {
+					$class .= " " . $options['parent_class'];
 					if(!$stopit) {
 						$s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child, $offset));
 					}
 				}
-				else if($child === $page) {
+				else if($is_current) {
 					$class .= " " . $options['current_class'];
 					if($has_valid_children && !$is_root && !$stopit) {
 						$s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child, $offset));
@@ -171,7 +173,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			}
 			
 			// if current page, get current item tpl else we use the non-current
-			if($child === $page) $link_tpl = $options['item_current_tpl'];
+			if($is_current) $link_tpl = $options['item_current_tpl'];
 				else $link_tpl = $options['item_tpl'];
 
 			// template field tags matching
