@@ -7,7 +7,7 @@
  * @author Soma, with code based by Apeisa, Ryan.
  *
  * @date_created 08/03/2012
- * @last_modified 21/03/2012
+ * @last_modified 23/05/2012
  *
  * ProcessWire 2.x 
  * Copyright (C) 2011 by Ryan Cramer 
@@ -99,6 +99,9 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		} else {
 			$children = $rootPage->children( $options['selector'] );
 		}
+
+		// if no children there's no need to go any further
+		if( !count($children) ) return;
 
 		$outer_tpl = explode('||',$options['outer_tpl']);
 		$inner_tpl = explode('||',$options['inner_tpl']);
