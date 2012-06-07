@@ -1,5 +1,5 @@
 
-MarkupSimpleNavigation 1.1.0
+MarkupSimpleNavigation 1.1.1
 
 
 INSTALL:
