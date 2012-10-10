@@ -1,13 +1,13 @@
 
-MarkupSimpleNavigation 1.1.1
+MarkupSimpleNavigation 1.1.2
 
 
 INSTALL:
 ----------------------------------------------------------------------------------------------------------
 
-Go to your module Install page and click "Check for new modules". It will appear under the section Markup. 
-Click "install" button. Done. (Techically you don't even need to install it, after the load call it will 
-be installed automaticly on first request. But it feels better). However it will not be "autoloaded" by 
+Go to your module Install page and click "Check for new modules". It will appear under the section Markup.
+Click "install" button. Done. (Techically you don't even need to install it, after the load call it will
+be installed automaticly on first request. But it feels better). However it will not be "autoloaded" by
 Processwire unless you load it in one of your php templates.
 
 
@@ -47,7 +47,7 @@ $options = array(
     'inner_tpl' => '<ul>||</ul>', // template string for inner wrappers. || will contain entries
     'list_tpl' => '<li%s>||</li>', // template string for the items. || will contain entries, %s will replaced with class="..." string
     'item_tpl' => '<a href="{url}">{title}</a>', // template string for the inner items. Use {anyfield} and {url}, i.e. {headline|title}, if field is of type image it will return url to image (first image if multiple)
-    'item_active_tpl' => '<a href="{url}">{title}</a>' // template string for the active inner items. 
+    'item_active_tpl' => '<a href="{url}">{title}</a>' // template string for the active inner items.
 )
 echo $treeMenu->render($options);
 
@@ -62,7 +62,7 @@ echo $treeMenu->render(null, null, $rootPage); // null at first is to not have t
 
 Or to even overwrite the current active page
 
-$currentPage = $pages->get(1242); // or any other page object 
+$currentPage = $pages->get(1242); // or any other page object
 $rootPage = $pages->get("/en/"); // or any other page that has subpages
 echo $treeMenu->render(null, $currentPage, $rootPage); // null at first is to not have to specify options, just use default
 
