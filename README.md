@@ -14,8 +14,10 @@ $rootPage, is a page object for the root of the menu
 Simplest is to call with no options. It will render an nested UL markup tree on all levels expanded from the
 root page "/". Containing "parent" and "current" class attributes on anchors by default.
 
-    $treeMenu = $modules->get("MarkupSimpleNavigation"); // load the module
-    echo $treeMenu->render(); // render default menu
+```php
+$treeMenu = $modules->get("MarkupSimpleNavigation"); // load the module
+echo $treeMenu->render(); // render default menu
+```
 
 ## Default options
 
@@ -112,6 +114,7 @@ echo $treeMenu->render(null, $currentPage, $rootPage);
 
 ## Default markup output example
 
+```html
     <ul>
         <li><a href='/'>Home</a></li>
         <li class='parent has_children'><a href='/about/'>About22</a>
@@ -132,7 +135,7 @@ echo $treeMenu->render(null, $currentPage, $rootPage);
         </li>
         <li><a href='/site-map/'>Site Map</a></li>
     </ul>
-
+```
 
 ## Markup templates (new in 1.1.0)
 
