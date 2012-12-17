@@ -2,7 +2,7 @@
 
 /**
  *
- * Simple Tree Menu Module 1.1.2
+ * Simple Tree Menu Module 1.1.5
  *
  * @author Soma, with code based by Apeisa, Ryan.
  *
@@ -36,7 +36,10 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		'inner_tpl' => '<ul>||</ul>', // template string for inner wrappers. || will contain entries
 		'list_tpl' => '<li%s>||</li>', // template string for the items. || will contain entries, %s will replaced with class="..." string
 		'item_tpl' => '<a href="{url}">{title}</a>', // template string for the inner items. Use {anyfield} and {url}, i.e. {headline|title}, if field is of type image it will return url to image (first image if multiple)
-		'item_current_tpl' => '<a href="{url}">{title}</a>' // template string for the current active inner items.
+		'item_current_tpl' => '<a href="{url}">{title}</a>', // template string for the current active inner items.
+		'xtemplates' => '', // specify templates i.e. "folder|placeholder" for pages that need different output.
+		'xitem_tpl' => '<span>{title}</a>',
+		'xitem_current_tpl' => '<span>{title}</span>'
 	);
 
 
@@ -44,7 +47,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		return array(
 			'title' => "Markup for simple nested navigation",
 			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-			'version' => 112,
+			'version' => 115,
 			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
 			'autoload' => false,
 			'singular' => true
@@ -185,8 +188,15 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			}
 
 			// if current page, get current item tpl else we use the non-current
-			if($is_current) $link_tpl = $options['item_current_tpl'];
-				else $link_tpl = $options['item_tpl'];
+			if($is_current) {
+				if($child->is("template=".$options['xtemplates']))
+				   	$link_tpl = $options['xitem_current_tpl'];
+				  	else $link_tpl = $options['item_current_tpl'];
+			} else {
+				if($child->is("template=".$options['xtemplates']))
+					$link_tpl = $options['xitem_tpl'];
+					else $link_tpl = $options['item_tpl'];
+			}
 
 			// template field tags matching
 			preg_match_all('#\{(.+?)\}#i', $link_tpl, $matches, PREG_SET_ORDER);
