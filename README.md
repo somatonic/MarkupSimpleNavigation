@@ -92,7 +92,7 @@ $options = array(
     'item_tpl' => '<a href="{url}">{title}</a>',
     // template string for the inner items. Use {anyfield} and {url}, i.e. {headline|title}, if field is of type image it will return url to image (first image if multiple)
 
-    'item_active_tpl' => '<a href="{url}">{title}</a>',
+    'item_current_tpl' => '<a href="{url}">{title}</a>',
     // template string for the active inner items.
 
     'xtemplates' => '',
@@ -101,7 +101,7 @@ $options = array(
     'xitem_tpl' => '<a href="{url}">{title}</a>',
     // same as 'item_tpl' but for xtemplates pages, can be used to define placholders
 
-    'xitem_active_tpl' => '<a href="{url}">{title}</a>'
+    'xitem_current_tpl' => '<a href="{url}">{title}</a>'
     // same as 'item_current_tpl' but for xtemplates pages
 )
 echo $treeMenu->render($options);
