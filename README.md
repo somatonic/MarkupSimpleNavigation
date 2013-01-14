@@ -38,10 +38,10 @@ $options = array(
     'inner_tpl' => '<ul>||</ul>',
     'list_tpl' => '<li%s>||</li>',
     'item_tpl' => '<a href="{url}">{title}</a>',
-    'item_active_tpl' => '<a href="{url}">{title}</a>'
+    'item_current_tpl' => '<a href="{url}">{title}</a>'
     'xtemplates' => '',
     'xitem_tpl' => '<span>{title}</span>',
-    'xitem_active_tpl' => '<span>{title}</span>'
+    'xitem_current_tpl' => '<span>{title}</span>'
 )
 echo $treeMenu->render($options);
 ```
