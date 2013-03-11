@@ -5,6 +5,7 @@
  * Simple Tree Menu Module 1.1.5
  *
  * @author Soma, with code based by Apeisa, Ryan.
+ * https://github.com/somatonic/MarkupSimpleNavigation
  *
  * @date_created 08/03/2012
  *
@@ -35,6 +36,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		'outer_tpl' => '<ul>||</ul>', // template string for the outer most wrapper. || will contain entries
 		'inner_tpl' => '<ul>||</ul>', // template string for inner wrappers. || will contain entries
 		'list_tpl' => '<li%s>||</li>', // template string for the items. || will contain entries, %s will replaced with class="..." string
+		'list_field_class' => '', // string (default '') add custom classes to each list_tpl using tags like {field} i.e. {template} p_{id}
 		'item_tpl' => '<a href="{url}">{title}</a>', // template string for the inner items. Use {anyfield} and {url}, i.e. {headline|title}, if field is of type image it will return url to image (first image if multiple)
 		'item_current_tpl' => '<a href="{url}">{title}</a>', // template string for the current active inner items.
 		'xtemplates' => '', // specify templates i.e. "folder|placeholder" for pages that need different output.
@@ -45,9 +47,9 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 	public static function getModuleInfo() {
 		return array(
-			'title' => "Markup for simple nested navigation",
+			'title' => "Markup Simple Navigation",
 			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-			'version' => 115,
+			'version' => 116,
 			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
 			'autoload' => false,
 			'singular' => true
@@ -179,6 +181,10 @@ class MarkupSimpleNavigation extends WireData implements Module {
 				$class .= " " . $options['has_children_class'];
 			}
 
+			if($options['list_field_class']){
+				$class .= " " . $this->getTagsString($options['list_field_class'], $child);
+			}
+
 			// remove first space char
 			$class = substr($class,1);
 
@@ -199,26 +205,9 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			}
 
 			// template field tags matching
-			preg_match_all('#\{(.+?)\}#i', $link_tpl, $matches, PREG_SET_ORDER);
+			$link_tpl = $this->getTagsString($link_tpl, $child);
 
-			if(count($matches)){
-				foreach($matches as $match) {
-					$f = $child->get($match[1]);
-					// check if it's an image file field and ouput url
-					if($f instanceof Pageimage) {
-						$field_value = $f->url;
-					} else if($f instanceof Pageimages) {
-						if(count($f)) $field_value = $f->first()->url;
-							else $field_value = '';
-					} else {
-						$field_value = $f;
-					}
-					$link_tpl = str_replace($match[0], $field_value, $link_tpl);
-					$link_tpl = str_replace("%s", $class, $link_tpl);
-				}
-			}
-
-			$list_tpl_open = str_replace("%s", $class, $list_tpl[0]);
+			$list_tpl_open = str_replace("%s", $class , $list_tpl[0]);
 			$out .= "\n\t{$list_tpl_open}{$link_tpl}{$s}{$list_tpl[1]}";
 		}
 
@@ -227,6 +216,29 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			else if( count($children) ) $out .= "\n$inner_tpl[1]\n";
 
 		return $out;
+	}
+
+	public function ___getTagsString($tpl, $page){
+		// template field tags matching
+		preg_match_all('#\{(.+?)\}#i', $tpl, $matches, PREG_SET_ORDER);
+
+		if(count($matches)){
+			foreach($matches as $match) {
+				$f = $page->get($match[1]);
+				// check if it's an image file field and ouput url
+				if($f instanceof Pageimage) {
+					$field_value = $f->url;
+				} else if($f instanceof Pageimages) {
+					if(count($f)) $field_value = $f->first()->url;
+						else $field_value = '';
+				} else {
+					$field_value = $f;
+				}
+				$tpl = str_replace($match[0], $field_value, $tpl);
+				$tpl = str_replace("%s", $class, $tpl);
+			}
+		}
+		return $tpl;
 	}
 
 }

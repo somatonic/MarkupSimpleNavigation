@@ -3,21 +3,33 @@
 
 ## Basic usage
 
-Once installed you can load it on demand in your templates by using $modules->get("MarkupSimpleNavigation") method.
+Once installed you can load the module in your template code on demand using $modules variable:
 
-Arguments:
-render($options, $page, $rootPage)
-$options, is an array of options
-$page, is a page object for the current page
-$rootPage, is a page object for the root of the menu
+```php
+$menu = $modules->get("MarkupSimpleNavigation");
+```
 
-Simplest is to call with no options. It will render an nested UL markup tree on all levels expanded from the
-root page "/". Containing "parent" and "current" class attributes on anchors by default.
+Simplest is to call render method with no options. It will return the markup string with a
+nested UL markup tree on all levels expanded from the root page "/". Containing "parent"
+and "current" class attributes on anchors by default. It doesn't print out directly so
+you need to use echo to output the markup. This also allows to further manipulate the
+returned string or pass it further from when using it in another function.
 
 ```php
 $treeMenu = $modules->get("MarkupSimpleNavigation"); // load the module
 echo $treeMenu->render(); // render default menu
 ```
+
+**Arguments:**
+
+The render() method accepts some configuration options.
+
+render($options, $page, $rootPage)
+
+- `$options`, is an array of options
+- `$page`, is a page object for the current page
+- `$rootPage`, is a page object for the root of the menu
+
 
 ## Default options
 
@@ -37,6 +49,7 @@ $options = array(
     'outer_tpl' => '<ul>||</ul>',
     'inner_tpl' => '<ul>||</ul>',
     'list_tpl' => '<li%s>||</li>',
+    'list_field_class' => '',
     'item_tpl' => '<a href="{url}">{title}</a>',
     'item_current_tpl' => '<a href="{url}">{title}</a>'
     'xtemplates' => '',
@@ -88,6 +101,8 @@ $options = array(
 
     'list_tpl' => '<li%s>||</li>',
     // template string for the items. || will contain entries, %s will replaced with class="..." string
+
+    'list_field_class' => '', // string (default '') add custom classes to each list_tpl using tags like {field} i.e. {template} p_{id}
 
     'item_tpl' => '<a href="{url}">{title}</a>',
     // template string for the inner items. Use {anyfield} and {url}, i.e. {headline|title}, if field is of type image it will return url to image (first image if multiple)
@@ -149,17 +164,28 @@ echo $treeMenu->render(null, $currentPage, $rootPage);
     </ul>
 ```
 
+## `list_field_class` option (new in 1.1.6)
+
+You can optionally define custom classes using a string that can contain tags for field names of pages.
+For example `'list_field_class' => '{template} p{id}'`, will add `' basic-page p1001'` to each `list_tpl` class string.
+
+## `xtemplates` Markup templates (new in 1.1.5)
+
+You can now define custom markup for the item tpl's for pages with template(s) specified using `xtemplates`.
+You can specify multiple templates by using `'basic-page|news'`.
+Items with this templates will then use the `xitem_tpl'` and `xitem_current_tpl` instead of the standard `item_tpl` and `item_current_tpl`.
+
 ## Markup templates (new in 1.1.0)
 
 If you want to define your own markup for the output you can use the options template to overwrite default.
 
-Classes placeholder "%s"
+Classes placeholder `%s`
 is used in either list or inner list item to define where the classes will be appended (current, parent, etc)
 
-Fields placeholder "{anyfield}"
-Can be used on item tpl to output fields you want. You can also use {headline|title} so if headline is
+Fields placeholder `{anyfield}`
+Can be used on item tpl to output fields you want. You can also use `{headline|title}` so if headline is
 empty it will chose title. If it's an image field, it will return the url to image. To output url you
-just use {url}.
+just use `{url}`.
 
 
 ## Installation
@@ -168,6 +194,3 @@ just use {url}.
 2. Go to modules install page and click "check for new modules"
 3. Install the module. The module appears under "Markup" section.
 
-(Techically you don't even need to install it, after the load call it will
-be installed automaticly on first request. But it feels better). However it will not be "autoloaded" by
-Processwire unless you load it in one of your php templates.
