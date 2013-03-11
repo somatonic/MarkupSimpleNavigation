@@ -1,5 +1,5 @@
 
-# MarkupSimpleNavigation 1.1.5
+# MarkupSimpleNavigation 1.1.6
 
 ## Basic usage
 
