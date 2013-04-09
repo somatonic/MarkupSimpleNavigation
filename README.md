@@ -1,5 +1,5 @@
 
-# MarkupSimpleNavigation 1.1.7
+# MarkupSimpleNavigation 1.1.8
 
 ## Basic usage
 
@@ -164,12 +164,20 @@ echo $treeMenu->render(null, $currentPage, $rootPage);
     </ul>
 ```
 
-## `list_field_class` option (new in 1.1.6)
+## alternative urls (new in 1.1.8)
+
+You can now use page fields to set an alternative redirect url to another page. For example {pagefieldname|url} for a item href. Where `pagefieldname` is a page field setup to dereference as "single or false" which is used to get a url to another page.
+
+Usage i.e:
+
+```item_tpl' => "<a href='{redirect_page|url}'>{title}</a>```
+
+## "list field class" option (new in 1.1.6)
 
 You can optionally define custom classes using a string that can contain tags for field names of pages.
 For example `'list_field_class' => '{template} p{id}'`, will add `' basic-page p1001'` to each `list_tpl` class string.
 
-## `xtemplates` Markup templates (new in 1.1.5)
+## "xtemplates" Markup templates (new in 1.1.5)
 
 You can now define custom markup for the item tpl's for pages with template(s) specified using `xtemplates`.
 You can specify multiple templates by using `'basic-page|news'`.

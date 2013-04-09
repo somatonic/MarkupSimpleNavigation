@@ -49,7 +49,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		return array(
 			'title' => "Markup Simple Navigation",
 			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-			'version' => 117,
+			'version' => 118,
 			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
 			'autoload' => false,
 			'singular' => true
@@ -224,13 +224,19 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 		if(count($matches)){
 			foreach($matches as $match) {
+
 				$f = $page->get($match[1]);
-				// check if it's an image file field and ouput url
+
+				// check if it's an image file field and output url
 				if($f instanceof Pageimage) {
 					$field_value = $f->url;
 				} else if($f instanceof Pageimages) {
 					if(count($f)) $field_value = $f->first()->url;
 						else $field_value = '';
+				}
+				// if page object from a page field get its url
+				else if($f instanceof Page){
+					$field_value = $f->url;
 				} else {
 					$field_value = $f;
 				}
