@@ -49,7 +49,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		return array(
 			'title' => "Markup Simple Navigation",
 			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-			'version' => 118,
+			'version' => 119,
 			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
 			'autoload' => false,
 			'singular' => true
@@ -185,13 +185,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 				$class .= " " . $this->getTagsString($options['list_field_class'], $child);
 			}
 
-			// remove first space char
-			$class = substr($class,1);
 
-			// is there's any class set?
-			if(strlen($class) > 0) {
-				$class = " class='$class'";
-			}
 
 			// if current page, get current item tpl else we use the non-current
 			if($is_current) {
@@ -206,8 +200,16 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 			// template field tags matching
 			$link_tpl = $this->getTagsString($link_tpl, $child);
+			$class = $this->getListClass($class, $child);
 
-			$list_tpl_open = str_replace("%s", $class , $list_tpl[0]);
+			// remove first space char
+			$class = substr($class,1);
+			if(strlen($class) > 0) {
+				$class = ' class="' . $class . '"';
+			}
+
+			$list_tpl_open = str_replace("%s", $class, $list_tpl[0]);
+
 			$out .= "\n\t{$list_tpl_open}{$link_tpl}{$s}{$list_tpl[1]}";
 		}
 
@@ -244,6 +246,13 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			}
 		}
 		return $tpl;
+	}
+
+	/**
+	 * hook method to add custom classes to entries
+	 */
+	public function ___getListClass($class, $page) {
+		return $class;
 	}
 
 }

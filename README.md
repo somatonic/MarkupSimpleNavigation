@@ -1,5 +1,5 @@
 
-# MarkupSimpleNavigation 1.1.8
+# MarkupSimpleNavigation 1.1.9
 
 ## Basic usage
 
@@ -163,6 +163,29 @@ echo $treeMenu->render(null, $currentPage, $rootPage);
         <li><a href='/site-map/'>Site Map</a></li>
     </ul>
 ```
+
+## hook for custom list classes (new in 1.1.9)
+
+You can now also hook into the class string added to list templates. This example can be used in templates and adds a additional "youclass" to the page with id 1001.
+
+```js
+$nav = $modules->get("MarkupSimpleNavigation");
+
+function hookGetListClass(HookEvent $event){
+    $child = $event->arguments('page'); // current rendered child page
+    $class = $event->arguments('class'); // the class string already present
+
+    // any API check on that child
+    if($child->id == 1001){
+        $event->return .= " yourclass"; // add your custom class to the existing
+    }
+}
+
+// setup the hook after on ___getListClass($class, $page) method
+$nav->addHookAfter('getListClass', null, 'hookGetListClass');
+echo $nav->render();
+```
+
 
 ## alternative urls (new in 1.1.8)
 
