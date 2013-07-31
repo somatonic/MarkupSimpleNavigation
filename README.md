@@ -55,7 +55,7 @@ $options = array(
     'xtemplates' => '',
     'xitem_tpl' => '<span>{title}</span>',
     'xitem_current_tpl' => '<span>{title}</span>'
-)
+);
 echo $treeMenu->render($options);
 ```
 ### Same with comments
@@ -118,7 +118,7 @@ $options = array(
 
     'xitem_current_tpl' => '<a href="{url}">{title}</a>'
     // same as 'item_current_tpl' but for xtemplates pages
-)
+);
 echo $treeMenu->render($options);
 ```
 
