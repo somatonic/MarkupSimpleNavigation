@@ -1,5 +1,5 @@
 
-# MarkupSimpleNavigation 1.1.9
+# MarkupSimpleNavigation 1.2.0
 
 ## Basic usage
 
@@ -163,6 +163,10 @@ echo $treeMenu->render(null, $currentPage, $rootPage);
         <li><a href='/site-map/'>Site Map</a></li>
     </ul>
 ```
+
+## new hook added for getTagsString() (new in 1.2.0)
+
+Added MarkupSimpleNavigation::getItemString(), now can also be used to hook into the item tpl parsing to modify or change the output.
 
 ## hook for custom list classes (new in 1.1.9)
 
