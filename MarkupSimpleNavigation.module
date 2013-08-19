@@ -49,7 +49,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		return array(
 			'title' => "Markup Simple Navigation",
 			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-			'version' => 119,
+			'version' => 120,
 			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
 			'autoload' => false,
 			'singular' => true
@@ -182,7 +182,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			}
 
 			if($options['list_field_class']){
-				$class .= " " . $this->getTagsString($options['list_field_class'], $child);
+				$class .= " " . $this->getItemString($options['list_field_class'], $child);
 			}
 
 
@@ -199,7 +199,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			}
 
 			// template field tags matching
-			$link_tpl = $this->getTagsString($link_tpl, $child);
+			$link_tpl = $this->getItemString($link_tpl, $child);
 			$class = $this->getListClass($class, $child);
 
 			// remove first space char
@@ -251,8 +251,16 @@ class MarkupSimpleNavigation extends WireData implements Module {
 	/**
 	 * hook method to add custom classes to entries
 	 */
-	public function ___getListClass($class, $page) {
+	protected function ___getListClass($class, $page) {
 		return $class;
+	}
+
+	/**
+	 * hook method for items, to have a better suited name but
+	 * keep backward compatibility
+	 */
+	public function ___getItemString($tpl,$page){
+		return $this->getTagsString($tpl,$page);
 	}
 
 }
