@@ -169,7 +169,7 @@ echo $treeMenu->render(null, $currentPage, $rootPage);
 ```
 ## added support for nav_selector property/field and selector_leveln (new in 1.2.1)
 
-You can now add property to page(s) to define custom selector for rendering their children. This can be done on runtime or via a custom field added to pages. You can configure the name of the field by using the newly added option "selector_field". MarkupSimpleNavigation will look out for it and use it, otherwise it will use the "selector" option.
+You can now add a special property "nav_selector' to page(s) to define custom selector for rendering their children. This can be done on runtime or via a custom field added to pages to remotely control the selector. You can configure the name of the field by using the newly added option "selector_field". MarkupSimpleNavigation will look out for it and use it, otherwise it will use the "selector" option.
 
 You can now define selector on a per level basis. Simply use the _leveln suffix on the "selector" option, where n is the level number from the root parent. This is best illustrated by the following example:
 
