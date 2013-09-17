@@ -46,6 +46,7 @@ $options = array(
     'collapsed' => false,
     'show_root' => false,
     'selector' => '',
+    'selector_field' => 'nav_selector',
     'outer_tpl' => '<ul>||</ul>',
     'inner_tpl' => '<ul>||</ul>',
     'list_tpl' => '<li%s>||</li>',
@@ -92,7 +93,10 @@ $options = array(
 
     'selector' => '',
     // define custom PW selector, you may sanitize values from user input
-
+    
+    'selector_field' => 'nav_selector',
+    // string (default 'nav_selector') define custom PW selector by using a property or field on a page. Use this setting if you want to overwrite the default nav_selector
+    
     'outer_tpl' => '<ul>||</ul>',
     // template string for the outer most wrapper. || will contain entries
 
