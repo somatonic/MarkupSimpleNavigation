@@ -131,8 +131,13 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 			$s = '';
 			$class = '';
-			if($child->selector) $selector = $child->selector;
-				else $selector = $options['selector'];
+			if($child->{$options['selector_field']}) {
+				$selector = $child->{$options['selector_field']};
+			} else if(isset($options['selector_level' . $this->iteration])) {
+				$selector = $options['selector_level' . $this->iteration];
+			} else {
+				$selector = $options['selector'];
+			}
 			
 			$is_root = ($child === $rootPage) ? true : false;
 			$level = $is_root ? 1 : count($child->parents) - $offset;
