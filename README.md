@@ -170,12 +170,12 @@ You can now add property to page(s) to define custom selector for rendering thei
 You can now define selector on a per level basis. Simply use the _leveln suffix on the "selector" option, where n is the level number from the root parent. This is best illustrated by the following example:
 
 ```php
-
-$pages->get(1001)->my_selector = "start=0,limit=3";
+$pages->get(1001)->my_selector = "template=projects";
 
 $options = array(
+  "selector_level1" => "template=ressort",
   "selector_level2" => "start=0, limit=10",
-  "selector_level3" => "start=0, limit=20",
+  "selector_level3" => "template=news|events, sort=-created",
   "selector_field" => "my_selector"
 );
 
