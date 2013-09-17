@@ -1,5 +1,5 @@
 
-# MarkupSimpleNavigation 1.1.9
+# MarkupSimpleNavigation 1.2.1
 
 ## Basic usage
 
@@ -188,6 +188,26 @@ echo $nav->render($options);
 
 Note that "my_selector" has priority and will overwrite any other selctor or selector_leveln
 
+## hook for custom item string (new in 1.2.0)
+
+Added support for hooking into the item creation. MarkupSimpleNavigation::getItemString
+
+```php
+$nav = $modules->get("MarkupSimpleNavigation");
+
+function myItemString(HookEvent $event){
+    $child = $event->arguments('page'); // current rendered child page
+    // any logic with $child possible here 
+    if($child->id == 1001){
+        // set the return value of this hook to a custom string
+        $event->return .= "<a href='$child->url'><span>Some Text</span>$child->title</a>";
+    }
+}
+
+// setup the hook after on ___getItemString($class, $page) method
+$nav->addHookAfter('getItemString', null, 'myItemString');
+echo $nav->render();
+```
 
 ## hook for custom list classes (new in 1.1.9)
 
@@ -199,8 +219,7 @@ $nav = $modules->get("MarkupSimpleNavigation");
 function hookGetListClass(HookEvent $event){
     $child = $event->arguments('page'); // current rendered child page
     $class = $event->arguments('class'); // the class string already present
-
-    // any API check on that child
+    // any check on that child to set your custom class
     if($child->id == 1001){
         $event->return .= " yourclass"; // add your custom class to the existing
     }
