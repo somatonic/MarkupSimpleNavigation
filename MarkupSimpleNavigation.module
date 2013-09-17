@@ -33,6 +33,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		'collapsed' => false, // bool (default false) if you want to auto-collapse the tree you set this to true
 		'show_root' => false, // bool (default false) set this to true if you want to rootPage to get prepended to the menu
 		'selector' => '', // string (default '') define custom PW selector, you may sanitize values from user input
+		'selector_field' => 'nav_selector', // string (default 'nav_selector') define custom PW selector by using a property or field on a page. Use this setting if you want to overwrite the default nav_selector
 		'outer_tpl' => '<ul>||</ul>', // template string for the outer most wrapper. || will contain entries
 		'inner_tpl' => '<ul>||</ul>', // template string for inner wrappers. || will contain entries
 		'list_tpl' => '<li%s>||</li>', // template string for the items. || will contain entries, %s will replaced with class="..." string
@@ -49,7 +50,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		return array(
 			'title' => "Markup Simple Navigation",
 			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-			'version' => 120,
+			'version' => 121,
 			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
 			'autoload' => false,
 			'singular' => true
@@ -90,18 +91,27 @@ class MarkupSimpleNavigation extends WireData implements Module {
 	private function _renderTree( $options, $page, $rootPage, $offset ){
 
 		$this->iteration++;
-
+		$selector = '';
+		
 		if(is_null($page)) $page = wire('page');
 		if(is_null($rootPage)) $rootPage = wire('pages')->get('/');
 
 		$parents = $page->parents;
 		$offset_root = count($rootPage->parents);
-
+		
+		if($rootPage->{$options['selector_field']}) {
+			$selector = $rootPage->{$options['selector_field']};
+		} else if($options['selector_level' . $this->iteration]) {
+			$selector = $options['selector_level' . $this->iteration];
+		} else {
+			$selector = $options['selector'];
+		}
+		
 		if($options['show_root'] && $this->iteration == 1) {
-			$children = $rootPage->children( $options['selector'] );
+			$children = $rootPage->children( $selector );
 			$children->prepend( $rootPage );
 		} else {
-			$children = $rootPage->children( $options['selector'] );
+			$children = $rootPage->children( $selector );
 		}
 
 		// if no children there's no need to go any further
@@ -121,10 +131,13 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 			$s = '';
 			$class = '';
+			if($child->selector) $selector = $child->selector;
+				else $selector = $options['selector'];
+			
 			$is_root = ($child === $rootPage) ? true : false;
 			$level = $is_root ? 1 : count($child->parents) - $offset;
 			$stopit = ($options['max_levels'] != null && $level >= $options['max_levels']) ? true : false;
-			$has_valid_children = (count($child->children($options['selector'])) && !$stopit) ? true : false;
+			$has_valid_children = (count($child->children( $selector )) && !$stopit) ? true : false;
 			$is_parent = $parents->has($child);
 			$is_current = $child === $page;
 

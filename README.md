@@ -1,5 +1,5 @@
 
-# MarkupSimpleNavigation 1.2.0
+# MarkupSimpleNavigation 1.1.9
 
 ## Basic usage
 
@@ -55,7 +55,7 @@ $options = array(
     'xtemplates' => '',
     'xitem_tpl' => '<span>{title}</span>',
     'xitem_current_tpl' => '<span>{title}</span>'
-);
+)
 echo $treeMenu->render($options);
 ```
 ### Same with comments
@@ -118,7 +118,7 @@ $options = array(
 
     'xitem_current_tpl' => '<a href="{url}">{title}</a>'
     // same as 'item_current_tpl' but for xtemplates pages
-);
+)
 echo $treeMenu->render($options);
 ```
 
@@ -163,16 +163,33 @@ echo $treeMenu->render(null, $currentPage, $rootPage);
         <li><a href='/site-map/'>Site Map</a></li>
     </ul>
 ```
+## added support for nav_selector property/field and selector_leveln (new in 1.2.1)
 
-## new hook added for getTagsString() (new in 1.2.0)
+You can now add property to page(s) to define custom selector for rendering their children. This can be done on runtime or via a custom field added to pages. You can configure the name of the field by using the newly added option "selector_field". MarkupSimpleNavigation will look out for it and use it, otherwise it will use the "selector" option.
 
-Added MarkupSimpleNavigation::getItemString(), now can also be used to hook into the item tpl parsing to modify or change the output.
+You can now define selector on a per level basis. Simply use the _leveln suffix on the "selector" option, where n is the level number from the root parent. This is best illustrated by the following example:
+
+```php
+
+$pages->get(1001)->my_selector = "start=0,limit=3";
+
+$options = array(
+  "selector_level2" => "start=0, limit=10",
+  "selector_level3" => "start=0, limit=20",
+  "selector_field" => "my_selector"
+);
+
+echo $nav->render($options);
+```
+
+Note that "my_selector" has priority and will overwrite any other selctor or selector_leveln
+
 
 ## hook for custom list classes (new in 1.1.9)
 
 You can now also hook into the class string added to list templates. This example can be used in templates and adds a additional "youclass" to the page with id 1001.
 
-```js
+```php
 $nav = $modules->get("MarkupSimpleNavigation");
 
 function hookGetListClass(HookEvent $event){
