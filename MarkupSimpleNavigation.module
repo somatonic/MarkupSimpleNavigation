@@ -101,7 +101,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		
 		if($rootPage->{$options['selector_field']}) {
 			$selector = $rootPage->{$options['selector_field']};
-		} else if($options['selector_level' . $this->iteration]) {
+		} else if(isset($options['selector_level' . $this->iteration])) {
 			$selector = $options['selector_level' . $this->iteration];
 		} else {
 			$selector = $options['selector'];
