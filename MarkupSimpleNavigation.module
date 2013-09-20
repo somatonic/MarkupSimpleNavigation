@@ -79,6 +79,11 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		// level offset of root page
 		if($rootPage != null) $offset = count($rootPage->parents);
 			else $offset = 0;
+		
+		$this->outer_tpl = explode('||',$options['outer_tpl']);
+		$this->inner_tpl = explode('||',$options['inner_tpl']);
+		$this->list_tpl = explode('||',$options['list_tpl']);
+		
 		return $this->_renderTree( $options, $page, $rootPage, $offset);
 	}
 
@@ -97,7 +102,6 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		if(is_null($rootPage)) $rootPage = wire('pages')->get('/');
 
 		$parents = $page->parents;
-		$offset_root = count($rootPage->parents);
 		
 		if($rootPage->{$options['selector_field']}) {
 			$selector = $rootPage->{$options['selector_field']};
@@ -115,34 +119,35 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		}
 
 		// if no children there's no need to go any further
-		if( !count($children) ) return;
-
-		$outer_tpl = explode('||',$options['outer_tpl']);
-		$inner_tpl = explode('||',$options['inner_tpl']);
-		$list_tpl = explode('||',$options['list_tpl']);
+		if( !count($children) ) {
+			// save the has_children information temporary to the page
+			// so we can ask for it later when adding class string to childs
+			// this is to prevent adding the "has_children" class to list items
+			// when there's no children found using custom selector,selector_leveln
+			$rootPage->has_valid_children = false;
+			return;
+		}
 
 		$out = '';
 
 		// output outer tpl wrapper only on first iteration
-		if($this->iteration == 1) $out .= "\n{$outer_tpl[0]}";
-			else if( count($children) ) $out .= "\n$inner_tpl[0]";
+		if($this->iteration == 1) $out .= "\n{$this->outer_tpl[0]}";
+			else if( count($children) ) $out .= "\n{$this->inner_tpl[0]}";
 
+		
 		foreach($children as $key => $child) {
 
 			$s = '';
 			$class = '';
-			if($child->{$options['selector_field']}) {
-				$selector = $child->{$options['selector_field']};
-			} else if(isset($options['selector_level' . $this->iteration])) {
-				$selector = $options['selector_level' . $this->iteration];
-			} else {
-				$selector = $options['selector'];
-			}
 			
 			$is_root = ($child === $rootPage) ? true : false;
 			$level = $is_root ? 1 : count($child->parents) - $offset;
 			$stopit = ($options['max_levels'] != null && $level >= $options['max_levels']) ? true : false;
-			$has_valid_children = (count($child->children( $selector )) && !$stopit) ? true : false;
+			
+			// we save the information to the page as it would get overwritten is using a local variable
+			// note: counting here is also a performance "bottleneck", but don't see how it could be done better
+			$child->has_valid_children = ($child->children( $selector )->count() && !$stopit) ? true : false;
+			
 			$is_parent = $parents->has($child);
 			$is_current = $child === $page;
 
@@ -162,7 +167,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 				else if($is_current){
 					$class .= " " . $options['current_class'];
 				}
-				if($has_valid_children && !$is_root && !$stopit){
+				if($child->has_valid_children && !$is_root && !$stopit){
 					$s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child, $offset));
 					// to maintain interation count for correct outer_tpl
 					$this->iteration--;
@@ -171,7 +176,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			// if auto collapse enabled only open current branch
 			else
 			{
-				if($has_valid_children && $is_parent && !$is_root) {
+				if($child->has_valid_children && $is_parent && !$is_root) {
 					$class .= " " . $options['parent_class'];
 					if(!$stopit) {
 						$s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child, $offset));
@@ -185,7 +190,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 				}
 				else if($is_current) {
 					$class .= " " . $options['current_class'];
-					if($has_valid_children && !$is_root && !$stopit) {
+					if($child->has_valid_children && !$is_root && !$stopit) {
 						$s = str_replace("\n", "\n\t\t", $this->_renderTree($options, $page, $child, $offset));
 						// to maintain interation count for correct outer_tpl
 						$this->iteration--;
@@ -195,15 +200,13 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 			// append has_children only if there's a need to ( if exluded throu selector or max_levels)
 			// still not sure how to behave, if one wants to still output "has_children" even if max_levels on
-			if($has_valid_children && !$is_root) {
+			if($child->has_valid_children && !$is_root) {
 				$class .= " " . $options['has_children_class'];
 			}
 
 			if($options['list_field_class']){
 				$class .= " " . $this->getItemString($options['list_field_class'], $child);
 			}
-
-
 
 			// if current page, get current item tpl else we use the non-current
 			if($is_current) {
@@ -226,14 +229,17 @@ class MarkupSimpleNavigation extends WireData implements Module {
 				$class = ' class="' . $class . '"';
 			}
 
-			$list_tpl_open = str_replace("%s", $class, $list_tpl[0]);
+			$list_tpl_open = str_replace("%s", $class, $this->list_tpl[0]);
 
-			$out .= "\n\t{$list_tpl_open}{$link_tpl}{$s}{$list_tpl[1]}";
+			$out .= "\n\t{$list_tpl_open}{$link_tpl}{$s}{$this->list_tpl[1]}";
+			
+			// clear the has_children temporary value
+			if($child->has_valid_children) unset($child->has_valid_children);
 		}
 
 		// output closing outer tpl wrapper only on first iteration
-		if($this->iteration == 1) $out .= "\n{$outer_tpl[1]}";
-			else if( count($children) ) $out .= "\n$inner_tpl[1]\n";
+		if($this->iteration == 1) $out .= "\n{$this->outer_tpl[1]}";
+			else if( count($children) ) $out .= "\n{$this->inner_tpl[1]}\n";
 
 		return $out;
 	}
