@@ -50,7 +50,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		return array(
 			'title' => "Markup Simple Navigation",
 			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-			'version' => 121,
+			'version' => 122,
 			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
 			'autoload' => false,
 			'singular' => true
@@ -79,11 +79,11 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		// level offset of root page
 		if($rootPage != null) $offset = count($rootPage->parents);
 			else $offset = 0;
-		
+
 		$this->outer_tpl = explode('||',$options['outer_tpl']);
 		$this->inner_tpl = explode('||',$options['inner_tpl']);
 		$this->list_tpl = explode('||',$options['list_tpl']);
-		
+
 		return $this->_renderTree( $options, $page, $rootPage, $offset);
 	}
 
@@ -97,12 +97,12 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 		$this->iteration++;
 		$selector = '';
-		
+
 		if(is_null($page)) $page = wire('page');
 		if(is_null($rootPage)) $rootPage = wire('pages')->get('/');
 
 		$parents = $page->parents;
-		
+
 		if($rootPage->{$options['selector_field']}) {
 			$selector = $rootPage->{$options['selector_field']};
 		} else if(isset($options['selector_level' . $this->iteration])) {
@@ -110,7 +110,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		} else {
 			$selector = $options['selector'];
 		}
-		
+
 		if($options['show_root'] && $this->iteration == 1) {
 			$children = $rootPage->children( $selector );
 			$children->prepend( $rootPage );
@@ -134,20 +134,28 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		if($this->iteration == 1) $out .= "\n{$this->outer_tpl[0]}";
 			else if( count($children) ) $out .= "\n{$this->inner_tpl[0]}";
 
-		
+
 		foreach($children as $key => $child) {
+
+			if($child->{$options['selector_field']}) {
+				$selector = $child->{$options['selector_field']};
+			} else if(isset($options['selector_level' . ($this->iteration + 1)])) {
+				$selector = $options['selector_level' . ($this->iteration + 1)];
+			} else {
+				$selector = $options['selector'];
+			}
 
 			$s = '';
 			$class = '';
-			
+
 			$is_root = ($child === $rootPage) ? true : false;
 			$level = $is_root ? 1 : count($child->parents) - $offset;
 			$stopit = ($options['max_levels'] != null && $level >= $options['max_levels']) ? true : false;
-			
+
 			// we save the information to the page as it would get overwritten is using a local variable
 			// note: counting here is also a performance "bottleneck", but don't see how it could be done better
 			$child->has_valid_children = ($child->children( $selector )->count() && !$stopit) ? true : false;
-			
+
 			$is_parent = $parents->has($child);
 			$is_current = $child === $page;
 
@@ -232,7 +240,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			$list_tpl_open = str_replace("%s", $class, $this->list_tpl[0]);
 
 			$out .= "\n\t{$list_tpl_open}{$link_tpl}{$s}{$this->list_tpl[1]}";
-			
+
 			// clear the has_children temporary value
 			if($child->has_valid_children) unset($child->has_valid_children);
 		}
