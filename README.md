@@ -1,5 +1,5 @@
 
-# MarkupSimpleNavigation 1.2.1
+# MarkupSimpleNavigation 1.2.2
 
 ## Basic usage
 
@@ -93,10 +93,10 @@ $options = array(
 
     'selector' => '',
     // define custom PW selector, you may sanitize values from user input
-    
+
     'selector_field' => 'nav_selector',
     // string (default 'nav_selector') define custom PW selector by using a property or field on a page. Use this setting if you want to overwrite the default nav_selector
-    
+
     'outer_tpl' => '<ul>||</ul>',
     // template string for the outer most wrapper. || will contain entries
 
@@ -167,6 +167,7 @@ echo $treeMenu->render(null, $currentPage, $rootPage);
         <li><a href='/site-map/'>Site Map</a></li>
     </ul>
 ```
+
 ## added support for nav_selector property/field and selector_leveln (new in 1.2.1)
 
 You can now add a special property "nav_selector' to page(s) to define custom selector for rendering their children. This can be done on runtime or via a custom field added to pages to remotely control the selector. You can configure the name of the field by using the newly added option "selector_field". MarkupSimpleNavigation will look out for it and use it, otherwise it will use the "selector" option.
@@ -197,7 +198,7 @@ $nav = $modules->get("MarkupSimpleNavigation");
 
 function myItemString(HookEvent $event){
     $child = $event->arguments('page'); // current rendered child page
-    // any logic with $child possible here 
+    // any logic with $child possible here
     if($child->id == 1001){
         // set the return value of this hook to a custom string
         $event->return .= "<a href='$child->url'><span>Some Text</span>$child->title</a>";
