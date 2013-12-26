@@ -40,9 +40,12 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		'list_field_class' => '', // string (default '') add custom classes to each list_tpl using tags like {field} i.e. {template} p_{id}
 		'item_tpl' => '<a href="{url}">{title}</a>', // template string for the inner items. Use {anyfield} and {url}, i.e. {headline|title}, if field is of type image it will return url to image (first image if multiple)
 		'item_current_tpl' => '<a href="{url}">{title}</a>', // template string for the current active inner items.
-		'xtemplates' => '', // specify templates i.e. "folder|placeholder" for pages that need different output.
-		'xitem_tpl' => '<span>{title}</a>',
-		'xitem_current_tpl' => '<span>{title}</span>'
+		'xtemplates' => '', // specify one or more templates separated with a pipe | to use the xitem_tpl and xitem_current_tpl markup
+		'xitem_tpl' => '<span>{title}</a>', // same as 'item_tpl' but for xtemplates pages, can be used to define placholders
+		'xitem_current_tpl' => '<span>{title}</span>', // same as 'item_current_tpl' but for xtemplates pages
+		'date_format' => 'Y/m/d', // default date formatting for Datetime fields and native created/modified
+		'code_formatting' => false, // enable or disable code indentations and newslines in markup output
+		'debug' => false, // show some inline information about rendertime and selectors used as html comments
 	);
 
 
@@ -50,10 +53,10 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		return array(
 			'title' => "Markup Simple Navigation",
 			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-			'version' => 122,
+			'version' => 130,
 			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
 			'autoload' => false,
-			'singular' => true
+			'singular' => false
 		);
 	}
 
@@ -69,13 +72,16 @@ class MarkupSimpleNavigation extends WireData implements Module {
 	*/
 	public function render( Array $options = null, Page $page = null, Page $rootPage = null ) {
 
-		$this->set('iteration',0);
-
 		if($options != null && is_array($options)){
 			$options = array_merge(self::$defaultOptions, $options);
 		} else {
 			$options = self::$defaultOptions;
 		}
+
+		if($options['debug']) $this->timer = Debug::timer();
+
+		$this->set('iteration',0);
+
 		// level offset of root page
 		if($rootPage != null) $offset = count($rootPage->parents);
 			else $offset = 0;
@@ -84,7 +90,19 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		$this->inner_tpl = explode('||',$options['inner_tpl']);
 		$this->list_tpl = explode('||',$options['list_tpl']);
 
-		return $this->_renderTree( $options, $page, $rootPage, $offset);
+		$this->options = $options;
+
+		$out = $this->_renderTree( $options, $page, $rootPage, $offset);
+
+		if(!$options["code_formatting"]){
+			$out = str_replace(array("\n", "\t"), array("",""), $out);
+		}
+
+		if($options['debug']) {
+			$out .= "<!-- [MarkupSimpleNavigation Rendertime: " . Debug::timer($this->timer) . "] -->";
+		}
+
+		return $out;
 	}
 
 
@@ -100,6 +118,10 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 		if(is_null($page)) $page = wire('page');
 		if(is_null($rootPage)) $rootPage = wire('pages')->get('/');
+
+		// check for if this page is listable,
+		// can be used for custom hooks on Page::listable
+		if(!$rootPage->listable()) return;
 
 		$parents = $page->parents;
 
@@ -118,6 +140,12 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			$children = $rootPage->children( $selector );
 		}
 
+		// filter out entries may exluded on runtime using Page::listable
+		// TODO: not sure how it behaves with page hidden status
+		foreach($children as $key => $child) {
+			if(!$child->listable()) $children->remove($child);
+		}
+
 		// if no children there's no need to go any further
 		if( !count($children) ) {
 			// save the has_children information temporary to the page
@@ -134,8 +162,11 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		if($this->iteration == 1) $out .= "\n{$this->outer_tpl[0]}";
 			else if( count($children) ) $out .= "\n{$this->inner_tpl[0]}";
 
-
 		foreach($children as $key => $child) {
+
+			// check for if this page is listable,
+			// can be used for custom hooks on Page::listable
+			//if(!$child->listable()) continue;
 
 			if($child->{$options['selector_field']}) {
 				$selector = $child->{$options['selector_field']};
@@ -239,6 +270,10 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 			$list_tpl_open = str_replace("%s", $class, $this->list_tpl[0]);
 
+			if($options['debug']) {
+				$link_tpl .= "<!-- [Selector Level$this->iteration: $selector] -->";
+			}
+
 			$out .= "\n\t{$list_tpl_open}{$link_tpl}{$s}{$this->list_tpl[1]}";
 
 			// clear the has_children temporary value
@@ -246,8 +281,11 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		}
 
 		// output closing outer tpl wrapper only on first iteration
-		if($this->iteration == 1) $out .= "\n{$this->outer_tpl[1]}";
-			else if( count($children) ) $out .= "\n{$this->inner_tpl[1]}\n";
+		if($this->iteration == 1) {
+			$out .= "\n{$this->outer_tpl[1]}";
+		} else if( count($children) ) {
+			$out .= "\n{$this->inner_tpl[1]}\n";
+		}
 
 		return $out;
 	}
@@ -259,20 +297,32 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		if(count($matches)){
 			foreach($matches as $match) {
 
-				$f = $page->get($match[1]);
+				$v = $page->get($match[1]);
+				$v_unformatted = $page->getUnformatted($match[1]);
+				$field = $this->fields->get($match[1]);
 
 				// check if it's an image file field and output url
-				if($f instanceof Pageimage) {
-					$field_value = $f->url;
-				} else if($f instanceof Pageimages) {
-					if(count($f)) $field_value = $f->first()->url;
+				if($v instanceof Pageimage) {
+					$field_value = $v->url;
+				} else if($v instanceof Pageimages) {
+					if(count($v)) $field_value = $v->first()->url;
 						else $field_value = '';
 				}
 				// if page object from a page field get its url
-				else if($f instanceof Page){
-					$field_value = $f->url;
+				else if($v instanceof Page){
+					$field_value = $v->url;
+
+				} else if($match[1] == 'created' || $match[1] == 'modified') {
+					$field_value = date($this->options['date_format'], $v);
+
+				// } else if(isset($field->type) && $field->type == "FieldtypeDatetime") {
+				// 	$field_value = date($this->options['date_format'], $v_unformatted);
+
+				} else if($match[1] == "createdUsersID" || $match[1] == "modifiedUsersID") {
+					$field_value = $this->users->get($v)->name;
+
 				} else {
-					$field_value = $f;
+					$field_value = $v;
 				}
 				$tpl = str_replace($match[0], $field_value, $tpl);
 			}
