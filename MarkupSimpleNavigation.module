@@ -162,12 +162,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		if($this->iteration == 1) {
 			$out .= "\n{$this->outer_tpl[0]}";
 		} else if( count($children) ) {
-			if(strpos($this->inner_tpl[0], '{') !== false){
-				$out .= "\n" . $this->getInnerStringOpen($this->inner_tpl[0], $rootPage);
-			} else {
-				$out .= "\n{$this->inner_tpl[0]}";
-			}
-
+			$out .= "\n" . $this->getInnerStringOpen($this->inner_tpl[0], $rootPage);
 		}
 
 		foreach($children as $key => $child) {
@@ -252,9 +247,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			}
 
 			if($options['list_field_class']){
-				if(strpos($this->inner_tpl[0], '{') !== false){
-					$class .= " " . $this->getListString($options['list_field_class'], $child);
-				}
+				$class .= " " . $this->getListString($options['list_field_class'], $child);
 			}
 
 			// if current page, get current item tpl else we use the non-current
