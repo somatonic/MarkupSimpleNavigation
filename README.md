@@ -1,5 +1,5 @@
 
-MarkupSimpleNavigation 1.3.0
+MarkupSimpleNavigation 1.3.1
 ==============================
 
 ## Basic usage
@@ -169,6 +169,24 @@ Or to even overwrite the current active page
         </li>
         <li><a href='/site-map/'>Site Map</a></li>
     </ul>
+
+## Changelog
+
+### Changes in 1.3.1
+
+- Minor refactoring and optimizations
+- Added support for having placeholder in inner_tpl's opening tag.
+
+So you can now also add dynamic values to the opening tag like, much like in the item_tpl
+
+```
+'inner_tpl' => "<ul id='{name}' class='drop-down'>||</ul>",
+```
+
+That will result in {name} being replaced by the name of the page (containing the inner childs)
+
+To hook into the parsing of the the list opening template you can use the ```MarkupSimpleNavigation::getInnerStringOpen```
+
 
 ### Changes in 1.3.0
 

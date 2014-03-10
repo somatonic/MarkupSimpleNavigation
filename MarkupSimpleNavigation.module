@@ -53,7 +53,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		return array(
 			'title' => "Markup Simple Navigation",
 			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-			'version' => 130,
+			'version' => 131,
 			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
 			'autoload' => false,
 			'singular' => false
@@ -70,7 +70,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 	*   init tree rendering, merge options with defaults
 	*
 	*/
-	public function render( Array $options = null, Page $page = null, Page $rootPage = null ) {
+	public function render( array $options = null, Page $page = null, Page $rootPage = null ) {
 
 		if($options != null && is_array($options)){
 			$options = array_merge(self::$defaultOptions, $options);
@@ -81,6 +81,9 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		if($options['debug']) $this->timer = Debug::timer();
 
 		$this->set('iteration',0);
+
+		if(is_null($page)) $page = wire('page');
+		if(is_null($rootPage)) $rootPage = wire('pages')->get('/');
 
 		// level offset of root page
 		if($rootPage != null) $offset = count($rootPage->parents);
@@ -111,13 +114,10 @@ class MarkupSimpleNavigation extends WireData implements Module {
 	*   Render the tree method
 	*
 	*/
-	private function _renderTree( $options, $page, $rootPage, $offset ){
+	private function _renderTree( $options, Page $page, Page $rootPage, $offset = 0){
 
 		$this->iteration++;
 		$selector = '';
-
-		if(is_null($page)) $page = wire('page');
-		if(is_null($rootPage)) $rootPage = wire('pages')->get('/');
 
 		// check for if this page is listable,
 		// can be used for custom hooks on Page::listable
@@ -159,8 +159,16 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		$out = '';
 
 		// output outer tpl wrapper only on first iteration
-		if($this->iteration == 1) $out .= "\n{$this->outer_tpl[0]}";
-			else if( count($children) ) $out .= "\n{$this->inner_tpl[0]}";
+		if($this->iteration == 1) {
+			$out .= "\n{$this->outer_tpl[0]}";
+		} else if( count($children) ) {
+			if(strpos($this->inner_tpl[0], '{') !== false){
+				$out .= "\n" . $this->getInnerStringOpen($this->inner_tpl[0], $rootPage);
+			} else {
+				$out .= "\n{$this->inner_tpl[0]}";
+			}
+
+		}
 
 		foreach($children as $key => $child) {
 
@@ -244,7 +252,9 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			}
 
 			if($options['list_field_class']){
-				$class .= " " . $this->getItemString($options['list_field_class'], $child);
+				if(strpos($this->inner_tpl[0], '{') !== false){
+					$class .= " " . $this->getListString($options['list_field_class'], $child);
+				}
 			}
 
 			// if current page, get current item tpl else we use the non-current
@@ -262,8 +272,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			$link_tpl = $this->getItemString($link_tpl, $child);
 			$class = $this->getListClass($class, $child);
 
-			// remove first space char
-			$class = substr($class,1);
+			$class = trim($class);
 			if(strlen($class) > 0) {
 				$class = ' class="' . $class . '"';
 			}
@@ -290,7 +299,9 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		return $out;
 	}
 
-	public function ___getTagsString($tpl, $page){
+
+	protected function parsePlaceholders($tpl, Page $page){
+
 		// template field tags matching
 		preg_match_all('#\{(.+?)\}#i', $tpl, $matches, PREG_SET_ORDER);
 
@@ -325,24 +336,50 @@ class MarkupSimpleNavigation extends WireData implements Module {
 					$field_value = $v;
 				}
 				$tpl = str_replace($match[0], $field_value, $tpl);
+
 			}
 		}
 		return $tpl;
+
 	}
 
+
 	/**
-	 * hook method to add custom classes to entries
+	 * hookable method to add custom classes to list items
 	 */
-	protected function ___getListClass($class, $page) {
+	protected function ___getListClass($class, Page $page) {
 		return $class;
 	}
 
 	/**
-	 * hook method for items, to have a better suited name but
+	 * deprecated, to be removed
+	 */
+	public function ___getTagsString($tpl, Page $page){
+		return $this->parsePlaceholders($tpl, $page);
+	}
+
+	/**
+	 * hookable method for items,
+	 * same as MarkupSimpleNavigation::getTagsString to have a better suited name but
 	 * keep backward compatibility
 	 */
-	public function ___getItemString($tpl,$page){
-		return $this->getTagsString($tpl,$page);
+	public function ___getItemString($tpl, Page $page){
+		return $this->getTagsString($tpl, $page);
+	}
+
+	/**
+	 * hookable method for lists
+	 */
+	public function ___getListString($tpl, Page $page){
+		return $this->parsePlaceholders($tpl, $page);
+	}
+
+	/**
+	 * hookable method for inner template, only for open tag <ul>||</ul>)
+	 * $page refers to the current rootPage for the container of it's inner childs
+	 */
+	public function ___getInnerStringOpen($tpl, Page $page){
+		return $this->parsePlaceholders($tpl, $page);
 	}
 
 }
