@@ -54,7 +54,7 @@ The render() method accepts some configuration options.
         'date_format' => 'Y/m/d',
         'code_formatting' => false,
         'debug' => false
-    )
+    );
     echo $treeMenu->render($options);
 
 
@@ -117,7 +117,7 @@ The render() method accepts some configuration options.
         'xitem_tpl' => '<a href="{url}">{title}</a>',
         // same as 'item_tpl' but for xtemplates pages, can be used to define placholders
 
-        'xitem_current_tpl' => '<a href="{url}">{title}</a>'
+        'xitem_current_tpl' => '<a href="{url}">{title}</a>',
         // same as 'item_current_tpl' but for xtemplates pages
 
         'date_format' => 'Y/m/d',
@@ -129,7 +129,7 @@ The render() method accepts some configuration options.
         'debug' => false,
         // show some inline information about rendertime and selectors used as html comments
 
-    )
+    );
     echo $treeMenu->render($options);
 
 
