@@ -41,7 +41,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		'item_tpl' => '<a href="{url}">{title}</a>', // template string for the inner items. Use {anyfield} and {url}, i.e. {headline|title}, if field is of type image it will return url to image (first image if multiple)
 		'item_current_tpl' => '<a href="{url}">{title}</a>', // template string for the current active inner items.
 		'xtemplates' => '', // specify one or more templates separated with a pipe | to use the xitem_tpl and xitem_current_tpl markup
-		'xitem_tpl' => '<span>{title}</a>', // same as 'item_tpl' but for xtemplates pages, can be used to define placholders
+		'xitem_tpl' => '<a href="{url}">{title}</a>', // same as 'item_tpl' but for xtemplates pages, can be used to define placholders
 		'xitem_current_tpl' => '<span>{title}</span>', // same as 'item_current_tpl' but for xtemplates pages
 		'date_format' => 'Y/m/d', // default date formatting for Datetime fields and native created/modified
 		'code_formatting' => false, // enable or disable code indentations and newslines in markup output
@@ -53,7 +53,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		return array(
 			'title' => "Markup Simple Navigation",
 			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-			'version' => 131,
+			'version' => 132,
 			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
 			'autoload' => false,
 			'singular' => false

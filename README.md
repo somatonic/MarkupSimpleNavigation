@@ -1,5 +1,5 @@
 
-MarkupSimpleNavigation 1.3.1
+MarkupSimpleNavigation 1.3.2
 ==============================
 
 ## Basic usage
@@ -49,7 +49,7 @@ The render() method accepts some configuration options.
         'item_tpl' => '<a href="{url}">{title}</a>',
         'item_current_tpl' => '<a href="{url}">{title}</a>',
         'xtemplates' => '',
-        'xitem_tpl' => '<span>{title}</span>',
+        'xitem_tpl' => '<a href="{url}">{title}</a>',
         'xitem_current_tpl' => '<span>{title}</span>',
         'date_format' => 'Y/m/d',
         'code_formatting' => false,
@@ -117,7 +117,7 @@ The render() method accepts some configuration options.
         'xitem_tpl' => '<a href="{url}">{title}</a>',
         // same as 'item_tpl' but for xtemplates pages, can be used to define placholders
 
-        'xitem_current_tpl' => '<a href="{url}">{title}</a>',
+        'xitem_current_tpl' => '<span>{title}</span>',
         // same as 'item_current_tpl' but for xtemplates pages
 
         'date_format' => 'Y/m/d',
@@ -171,6 +171,10 @@ Or to even overwrite the current active page
     </ul>
 
 ## Changelog
+
+### Changes in 1.3.1
+
+- fixed typo in default options xitem_tpl
 
 ### Changes in 1.3.1
 
