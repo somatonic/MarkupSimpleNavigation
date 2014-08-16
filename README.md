@@ -1,5 +1,5 @@
 
-MarkupSimpleNavigation 1.3.2
+MarkupSimpleNavigation 1.3.3
 ==============================
 
 ## Basic usage
@@ -146,6 +146,13 @@ Or to even overwrite the current active page
     $rootPage = $pages->get("/en/");
     echo $treeMenu->render(null, $currentPage, $rootPage);
 
+## Build a menu using a PageArray instead of a single root page
+
+Since 1.3.3 you can also define a PageArray as the root page argument. Instead of a root it will take the PageArray as the first level entries. This can be used to build a menu from a page select field for example. Assuming you have a page field "navigation_entries" on your home root page:
+
+    $entries = $pages->get("/")->navigation_entries;
+    echo $treeMenu->render(null, null, $entries);
+
 
 ## Default markup output example
 
@@ -172,7 +179,12 @@ Or to even overwrite the current active page
 
 ## Changelog
 
-### Changes in 1.3.1
+
+### Changes in 1.3.3
+
+- added support for PageArray as the root page argument
+
+### Changes in 1.3.2
 
 - fixed typo in default options xitem_tpl
 
