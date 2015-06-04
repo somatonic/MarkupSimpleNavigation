@@ -115,7 +115,7 @@ The render() method accepts some configuration options.
         // specify one or more templates separated with a pipe | to use the xitem_tpl and xitem_current_tpl markup
 
         'xitem_tpl' => '<a href="{url}">{title}</a>',
-        // same as 'item_tpl' but for xtemplates pages, can be used to define placholders
+        // same as 'item_tpl' but for xtemplates pages, can be used to define placeholders
 
         'xitem_current_tpl' => '<span>{title}</span>',
         // same as 'item_current_tpl' but for xtemplates pages
@@ -235,7 +235,7 @@ You can now define selector on a per level basis. Simply use the _leveln suffix 
     echo $nav->render($options);
 
 
-Note that "my_selector" has priority and will overwrite any other selctor or selector_leveln
+Note that "my_selector" has priority and will overwrite any other selector or selector_leveln
 
 ### hook for custom item string (new in 1.2.0)
 
