@@ -53,7 +53,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		return array(
 			'title' => "Markup Simple Navigation",
 			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-			'version' => 133,
+			'version' => 134,
 			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
 			'autoload' => false,
 			'singular' => false
@@ -86,6 +86,8 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 		if(is_null($rootPage)) {
 			$rootPage = wire('pages')->get('/');
+			// clear navigationEntries in case it's set in a previous render
+			$rootPage->navigationEntries = null;
 		} else if($rootPage instanceof PageArray) {
 			// if we have a PageArray save it in a temporary property for use in the _renderTree method
 			$entries = $rootPage;

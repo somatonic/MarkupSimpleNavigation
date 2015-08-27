@@ -1,5 +1,5 @@
 
-MarkupSimpleNavigation 1.3.3
+MarkupSimpleNavigation 1.3.4
 ==============================
 
 ## Basic usage
@@ -179,6 +179,9 @@ Since 1.3.3 you can also define a PageArray as the root page argument. Instead o
 
 ## Changelog
 
+### Changes in 1.3.4
+
+- fix issue where PageArray as the root page would get saved on root page and affect other intances called later
 
 ### Changes in 1.3.3
 
