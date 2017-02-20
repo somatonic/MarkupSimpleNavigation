@@ -200,8 +200,14 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			$stopit = ($options['max_levels'] != null && $level >= $options['max_levels']) ? true : false;
 
 			// we save the information to the page as it would get overwritten is using a local variable
-			// note: counting here is also a performance "bottleneck", but don't see how it could be done better
-			$child->has_valid_children = ($child->children( $selector )->count() && !$stopit) ? true : false;
+			// note: only try fetch a single child to determine if there are valid children
+			$validChildSelector = $selector;
+			if ( preg_match("#((\s|\b)limit\s*=\s*([0-9]+)(\s|\b))#i", $validChildSelector, $limitMatch) ) {
+				$validChildSelector = str_replace($limitMatch[0],'limit=1',$validChildSelector);
+			} else {
+				$validChildSelector = trim($validChildSelector.',limit=1',',');
+			}
+			$child->has_valid_children = ($child->children( $validChildSelector )->count() && !$stopit) ? true : false;
 
 			$is_parent = $parents->has($child);
 			$is_current = $child === $page;
