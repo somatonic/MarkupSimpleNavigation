@@ -143,7 +143,8 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		}
 
 		if($options['show_root'] && $this->iteration == 1) {
-			$children = $rootPage->children( $selector );
+			$children = new PageArray();
+			$children->add($rootPage->children( $selector ));
 			$children->prepend( $rootPage );
 		} else {
 			if($rootPage->navigationEntries && $rootPage->navigationEntries instanceof PageArray){
