@@ -53,7 +53,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		return array(
 			'title' => "Markup Simple Navigation",
 			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-			'version' => 134,
+			'version' => 135,
 			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
 			'autoload' => false,
 			'singular' => false
@@ -201,7 +201,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 			// we save the information to the page as it would get overwritten is using a local variable
 			// note: counting here is also a performance "bottleneck", but don't see how it could be done better
-			$child->has_valid_children = ($child->children( $selector )->count() && !$stopit) ? true : false;
+			$child->has_valid_children = ($child->child( $selector )->id && !$stopit) ? true : false;
 
 			$is_parent = $parents->has($child);
 			$is_current = $child === $page;

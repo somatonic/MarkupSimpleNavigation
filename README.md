@@ -1,5 +1,5 @@
 
-MarkupSimpleNavigation 1.3.4
+MarkupSimpleNavigation
 ==============================
 
 ## Basic usage
@@ -178,6 +178,10 @@ Since 1.3.3 you can also define a PageArray as the root page argument. Instead o
     </ul>
 
 ## Changelog
+
+### Changes in 1.3.5
+
+- fix performance issue with large sub branches
 
 ### Changes in 1.3.4
 
