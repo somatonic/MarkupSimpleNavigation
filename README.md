@@ -179,6 +179,10 @@ Since 1.3.3 you can also define a PageArray as the root page argument. Instead o
 
 ## Changelog
 
+### Changes in 1.3.6
+
+- fix issue with root parent children property getting altered when show root option is used
+
 ### Changes in 1.3.5
 
 - fix performance issue with large sub branches

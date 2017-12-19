@@ -53,7 +53,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		return array(
 			'title' => "Markup Simple Navigation",
 			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-			'version' => 135,
+			'version' => 136,
 			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
 			'autoload' => false,
 			'singular' => false
@@ -143,7 +143,8 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		}
 
 		if($options['show_root'] && $this->iteration == 1) {
-			$children = $rootPage->children( $selector );
+			$children = new PageArray();
+			$children->add($rootPage->children( $selector ));
 			$children->prepend( $rootPage );
 		} else {
 			if($rootPage->navigationEntries && $rootPage->navigationEntries instanceof PageArray){
