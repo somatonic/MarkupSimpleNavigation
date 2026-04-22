@@ -179,6 +179,21 @@ Since 1.3.3 you can also define a PageArray as the root page argument. Instead o
 
 ## Changelog
 
+### Changes in 1.3.7 (2026-04-22)
+
+- Updated for ProcessWire 3.x and PHP 8.x compatibility
+- Declared class properties explicitly to fix PHP 8.2 dynamic property deprecation
+- Fixed nullable type hints on `render()` signature (`?array`, `?Page`) required since PHP 8.0
+- Replaced global `wire()` calls with `$this->wire()` for correct PW3 multi-instance scoping
+- Replaced `new PageArray()` with `$this->wire(new PageArray())` for proper instance binding
+- Replaced object identity comparisons (`===`) with ID-based comparisons (`->id ===`) for `$is_current` and `$is_root`
+- Replaced loose null comparisons (`!= null`) with strict (`!== null`) throughout
+- Fixed misleading single-line `if/else` in `xtemplates` block with proper braces
+- Removed unused `$v_unformatted` variable in `parsePlaceholders()`
+- Replaced `$this->fields` / `$this->users` magic access with `$this->wire('fields')` / `$this->wire('users')`
+- Updated `getModuleInfo()`: added `icon`, `requires` (PHP>=8.0, ProcessWire>=3.0.0), updated `href` to https
+- Bumped version from 1.3.6 to 1.3.7
+
 ### Changes in 1.3.6
 
 - fix issue with root parent children property getting altered when show root option is used
