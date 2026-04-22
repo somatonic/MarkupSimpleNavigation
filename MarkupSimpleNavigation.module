@@ -8,19 +8,26 @@
  * https://github.com/somatonic/MarkupSimpleNavigation
  *
  * @date_created 08/03/2012
+ * @date_updated 22/04/2026
  *
- * ProcessWire 2.x
- * Copyright (C) 2011 by Ryan Cramer
+ * ProcessWire 3.x
+ * Copyright (C) 2026 by Ryan Cramer
  * Licensed under GNU/GPL v2, see LICENSE.TXT
  *
- * http://www.processwire.com
- * http://www.ryancramer.com
+ * https://processwire.com
  *
  */
 
 
 
 class MarkupSimpleNavigation extends WireData implements Module {
+
+	protected int $iteration = 0;
+	protected mixed $timer = null;
+	protected array $options = [];
+	protected array $outer_tpl = [];
+	protected array $inner_tpl = [];
+	protected array $list_tpl = [];
 
 	public static $defaultOptions = array(
 		'parent_class' => 'parent', // string (default 'parent') overwrite class name for current parent levels
@@ -53,15 +60,16 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		return array(
 			'title' => "Markup Simple Navigation",
 			'summary' => 'Module to render simple nested ul tree of the site structure. See readme for usage and options avaiable.',
-			'version' => 136,
-			'href' => 'http://processwire.com/talk/topic/1036-markupsimplenavigation/',
+			'version' => '1.3.7',
+			'href' => 'https://processwire.com/talk/topic/1036-markupsimplenavigation/',
 			'autoload' => false,
-			'singular' => false
+			'singular' => false,
+			'icon' => 'sitemap',
+			'requires' => array('PHP>=8.0', 'ProcessWire>=3.0.0')
 		);
 	}
 
 	public function init() {
-		//$this->fuel->set('treeMenu', $this );
 	}
 
 	/**
@@ -70,9 +78,9 @@ class MarkupSimpleNavigation extends WireData implements Module {
 	*   init tree rendering, merge options with defaults
 	*
 	*/
-	public function render( array $options = null, Page $page = null, $rootPage = null) {
+	public function render( ?array $options = null, ?Page $page = null, $rootPage = null) {
 
-		if($options != null && is_array($options)){
+		if($options !== null && is_array($options)){
 			$options = array_merge(self::$defaultOptions, $options);
 		} else {
 			$options = self::$defaultOptions;
@@ -80,23 +88,23 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 		if($options['debug']) $this->timer = Debug::timer();
 
-		$this->set('iteration', 0);
+		$this->iteration = 0;
 
-		if(is_null($page)) $page = wire('page');
+		if($page === null) $page = $this->wire('page');
 
-		if(is_null($rootPage)) {
-			$rootPage = wire('pages')->get('/');
+		if($rootPage === null) {
+			$rootPage = $this->wire('pages')->get('/');
 			// clear navigationEntries in case it's set in a previous render
 			$rootPage->navigationEntries = null;
 		} else if($rootPage instanceof PageArray) {
 			// if we have a PageArray save it in a temporary property for use in the _renderTree method
 			$entries = $rootPage;
-			$rootPage = wire('pages')->get('/');
+			$rootPage = $this->wire('pages')->get('/');
 			$rootPage->navigationEntries = $entries;
 		}
 
 		// level offset of root page
-		if($rootPage != null) $offset = count($rootPage->parents);
+		if($rootPage !== null) $offset = count($rootPage->parents);
 			else $offset = 0;
 
 		$this->outer_tpl = explode('||',$options['outer_tpl']);
@@ -143,7 +151,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 		}
 
 		if($options['show_root'] && $this->iteration == 1) {
-			$children = new PageArray();
+			$children = $this->wire(new PageArray());
 			$children->add($rootPage->children( $selector ));
 			$children->prepend( $rootPage );
 		} else {
@@ -196,16 +204,16 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			$s = '';
 			$class = '';
 
-			$is_root = ($child === $rootPage) ? true : false;
+			$is_root = ($child->id === $rootPage->id);
 			$level = $is_root ? 1 : count($child->parents) - $offset;
-			$stopit = ($options['max_levels'] != null && $level >= $options['max_levels']) ? true : false;
+			$stopit = ($options['max_levels'] !== null && $level >= $options['max_levels']) ? true : false;
 
 			// we save the information to the page as it would get overwritten is using a local variable
 			// note: counting here is also a performance "bottleneck", but don't see how it could be done better
 			$child->has_valid_children = ($child->child( $selector )->id && !$stopit) ? true : false;
 
 			$is_parent = $parents->has($child);
-			$is_current = $child === $page;
+			$is_current = ($child->id === $page->id);
 
 			if($options['levels']) $class = " " . $options['levels_prefix'] . $level;
 				else $class = '';
@@ -266,13 +274,17 @@ class MarkupSimpleNavigation extends WireData implements Module {
 
 			// if current page, get current item tpl else we use the non-current
 			if($is_current) {
-				if($child->is("template=".$options['xtemplates']))
-				   	$link_tpl = $options['xitem_current_tpl'];
-				  	else $link_tpl = $options['item_current_tpl'];
+				if($child->is("template=".$options['xtemplates'])) {
+					$link_tpl = $options['xitem_current_tpl'];
+				} else {
+					$link_tpl = $options['item_current_tpl'];
+				}
 			} else {
-				if($child->is("template=".$options['xtemplates']))
+				if($child->is("template=".$options['xtemplates'])) {
 					$link_tpl = $options['xitem_tpl'];
-					else $link_tpl = $options['item_tpl'];
+				} else {
+					$link_tpl = $options['item_tpl'];
+				}
 			}
 
 			// template field tags matching
@@ -316,8 +328,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 			foreach($matches as $match) {
 
 				$v = $page->get($match[1]);
-				$v_unformatted = $page->getUnformatted($match[1]);
-				$field = $this->fields->get($match[1]);
+				$field = $this->wire('fields')->get($match[1]);
 
 				// check if it's an image file field and output url
 				if($v instanceof Pageimage) {
@@ -337,7 +348,7 @@ class MarkupSimpleNavigation extends WireData implements Module {
 				// 	$field_value = date($this->options['date_format'], $v_unformatted);
 
 				} else if($match[1] == "createdUsersID" || $match[1] == "modifiedUsersID") {
-					$field_value = $this->users->get($v)->name;
+					$field_value = $this->wire('users')->get($v)->name;
 
 				} else {
 					$field_value = $v;
